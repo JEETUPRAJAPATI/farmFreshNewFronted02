@@ -164,7 +164,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-white text-white hover:bg-white/10 font-semibold px-8 py-6 rounded-md transition duration-300"
+                    className="border-white text-white bg-white/10 font-semibold px-8 py-6 rounded-md transition duration-300"
                   >
                     Our Story
                   </Button>

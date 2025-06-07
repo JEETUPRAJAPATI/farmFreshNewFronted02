@@ -15,7 +15,6 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import AdminLayout from '@/components/admin/AdminLayout';
 
 interface DashboardStats {
   users: {
@@ -146,7 +145,7 @@ export default function AdminDashboard() {
 
             <div className="flex space-x-3">
               <button
-                onClick={() => setLocation('/admin/enhanced-products')}
+                onClick={() => setLocation('/admin/products')}
                 className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
               >
                 Products
@@ -342,9 +341,7 @@ export default function AdminDashboard() {
 
   return (
     <AdminAuthWrapper>
-           <AdminLayout>
-         {renderDashboard()}
-           </AdminLayout>
+      {renderDashboard()}
     </AdminAuthWrapper>
   );
 }

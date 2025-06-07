@@ -73,6 +73,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import ImageUpload from '@/components/admin/ImageUpload';
 
 // Enhanced Product type with all fields
 interface EnhancedProduct {
@@ -125,7 +126,7 @@ const enhancedProductFormSchema = z.object({
   premiumQuality: z.boolean().default(false),
 
   // Media
-  imageUrl: z.string().url("Please enter a valid image URL"),
+  imageUrl: z.string().optional(),
   imageUrls: z.string().optional(),
   videoUrl: z.string().url().optional().or(z.literal("")),
 
@@ -160,7 +161,10 @@ export default function EnhancedAdminProducts() {
   const [productToEdit, setProductToEdit] = useState<EnhancedProduct | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [farmers, setFarmers] = useState<{id: number, name: string, location: string}[]>([]);
-  const productsPerPage = 10;
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [primaryImage, setPrimaryImage] = useState<string>('');
+  const [isImageGalleryOpen, setIsImageGalleryOpen] = useState(false);
+  const productsPerPage = 5;
   const { toast } = useToast();
 
   // Form for creating/editing products
@@ -204,9 +208,10 @@ export default function EnhancedAdminProducts() {
         throw new Error('Authentication required');
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products?page=${page}&limit=${productsPerPage}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products?page=${page}&limit=${productsPerPage}&sort=id&order=desc`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
         }
       });
 
@@ -387,8 +392,41 @@ export default function EnhancedAdminProducts() {
       enableInstagramShare: product.enableInstagramShare !== false,
       featured: product.featured || false
     });
+
+    // Set existing images for the upload components
+    setPrimaryImage(product.imageUrl);
+    setUploadedImages(product.imageUrls || []);
+
     setProductToEdit(product);
     setIsEditDialogOpen(true);
+  };
+
+  // Handle primary image upload
+  const handlePrimaryImageUpload = (imagePath: string, thumbnailPath: string) => {
+    setPrimaryImage(imagePath);
+    form.setValue('imageUrl', imagePath);
+  };
+
+  // Handle additional images upload
+  const handleAdditionalImageUpload = (imagePath: string, thumbnailPath: string) => {
+    setUploadedImages(prev => [...prev, imagePath]);
+    const currentImages = form.getValues('imageUrls');
+    const imageArray = currentImages ? currentImages.split(',').map(img => img.trim()).filter(img => img) : [];
+    imageArray.push(imagePath);
+    form.setValue('imageUrls', imageArray.join(','));
+  };
+
+  // Handle image removal
+  const handleImageRemove = (imagePath: string) => {
+    if (imagePath === primaryImage) {
+      setPrimaryImage('');
+      form.setValue('imageUrl', '');
+    } else {
+      setUploadedImages(prev => prev.filter(img => img !== imagePath));
+      const currentImages = form.getValues('imageUrls');
+      const imageArray = currentImages ? currentImages.split(',').map(img => img.trim()).filter(img => img && img !== imagePath) : [];
+      form.setValue('imageUrls', imageArray.join(','));
+    }
   };
 
   // Set up form for creating
@@ -418,24 +456,42 @@ export default function EnhancedAdminProducts() {
       enableInstagramShare: true,
       featured: false
     });
+    setUploadedImages([]);
+    setPrimaryImage('');
     setIsCreateDialogOpen(true);
   };
 
   // Handle form submission for creating/editing
   const onSubmit = async (data: z.infer<typeof enhancedProductFormSchema>) => {
     try {
+      console.log('Form submission started with data:', data);
+
       const token = localStorage.getItem('adminToken');
       if (!token) {
         throw new Error('Authentication required');
       }
 
+      // Ensure we have an image URL from uploads
+      if (!primaryImage) {
+        toast({
+          title: 'Validation Error',
+          description: 'Please upload a primary image',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Use uploaded image
+      const finalImageUrl = primaryImage;
+
       // Process image URLs if provided
       const imageUrls = data.imageUrls
         ? data.imageUrls.split(',').map(url => url.trim()).filter(url => url)
-        : [];
+        : uploadedImages;
 
       const requestData = {
         ...data,
+        imageUrl: finalImageUrl,
         imageUrls: imageUrls.length > 0 ? imageUrls : null,
         videoUrl: data.videoUrl || null,
         discountPrice: data.discountPrice || null,
@@ -444,6 +500,8 @@ export default function EnhancedAdminProducts() {
         metaDescription: data.metaDescription || null,
         slug: data.slug || null
       };
+
+      console.log('Sending request data:', requestData);
 
       let response;
 
@@ -469,11 +527,20 @@ export default function EnhancedAdminProducts() {
         });
       }
 
+      const responseData = await response.json();
+      console.log('Response:', response.status, responseData);
+
       if (!response.ok) {
-        throw new Error(productToEdit ? 'Failed to update product' : 'Failed to create product');
+        throw new Error(responseData.message || (productToEdit ? 'Failed to update product' : 'Failed to create product'));
       }
 
-      fetchProducts(currentPage);
+      // Refresh to first page to show newly created product
+      if (productToEdit) {
+        fetchProducts(currentPage);
+      } else {
+        fetchProducts(1);
+        setCurrentPage(1);
+      }
 
       toast({
         title: productToEdit ? "Product updated" : "Product created",
@@ -484,7 +551,14 @@ export default function EnhancedAdminProducts() {
       setIsEditDialogOpen(false);
       setIsCreateDialogOpen(false);
       setProductToEdit(null);
+      setUploadedImages([]);
+      setPrimaryImage('');
+
+      // Reset form
+      form.reset();
+
     } catch (err) {
+      console.error('Form submission error:', err);
       toast({
         title: 'Error',
         description: err instanceof Error ? err.message : 'Failed to save product',
@@ -559,15 +633,27 @@ export default function EnhancedAdminProducts() {
                           <TableRow key={product.id}>
                             <TableCell>
                               <div className="flex items-center space-x-3">
-                                <img
-                                  src={product.imageUrl}
-                                  alt={product.name}
-                                  className="w-10 h-10 rounded object-cover"
-                                />
+                                <div className="relative">
+                                  <img
+                                    src={product.imageUrl.startsWith('http') ? product.imageUrl : product.imageUrl}
+                                    alt={product.name}
+                                    className="w-12 h-12 rounded object-cover border"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.src = `${import.meta.env.VITE_API_URL}/api/images/placeholder.png`;
+                                    }}
+                                  />
+                                  {product.imageUrls && product.imageUrls.length > 0 && (
+                                    <div className="absolute -bottom-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                      +{product.imageUrls.length}
+                                    </div>
+                                  )}
+                                </div>
                                 <div>
                                   <p className="font-medium">{product.name}</p>
+                                  <p className="text-sm text-muted-foreground">{product.shortDescription}</p>
                                   {product.sku && (
-                                    <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
+                                    <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
                                   )}
                                 </div>
                               </div>
@@ -638,8 +724,20 @@ export default function EnhancedAdminProducts() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => setupEditForm(product)}
+                                  title="Edit Product"
                                 >
                                   <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    setProductToEdit(product);
+                                    setIsImageGalleryOpen(true);
+                                  }}
+                                  title="View Images"
+                                >
+                                  <Eye className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -660,31 +758,36 @@ export default function EnhancedAdminProducts() {
                   </Table>
 
                   {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="flex items-center justify-center space-x-2 mt-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage <= 1}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                        Previous
-                      </Button>
-                      <span className="text-sm text-muted-foreground">
-                        Page {currentPage} of {totalPages}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage >= totalPages}
-                      >
-                        Next
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="text-sm text-muted-foreground">
+                      Showing {(currentPage - 1) * productsPerPage + 1} to {Math.min(currentPage * productsPerPage, products.length * totalPages)} of {products.length * totalPages} products
                     </div>
-                  )}
+                    {totalPages > 1 && (
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage <= 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          Previous
+                        </Button>
+                        <span className="text-sm text-muted-foreground">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage >= totalPages}
+                        >
+                          Next
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
             </CardContent>
@@ -1006,41 +1109,33 @@ export default function EnhancedAdminProducts() {
 
                     {/* Media Tab */}
                     <TabsContent value="media" className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Primary Image URL</FormLabel>
-                            <FormControl>
-                              <Input placeholder="https://example.com/image.jpg" {...field} />
-                            </FormControl>
-                            <FormDescription>Main product image displayed in listings</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div>
+                        <FormLabel>Primary Image</FormLabel>
+                        <FormDescription className="mb-3">
+                          Main product image displayed in listings
+                        </FormDescription>
+                        <ImageUpload
+                          onImageUpload={handlePrimaryImageUpload}
+                          onImageRemove={handleImageRemove}
+                          existingImages={primaryImage ? [primaryImage] : []}
+                          maxImages={1}
+                          multiple={false}
+                        />
+                      </div>
 
-                      <FormField
-                        control={form.control}
-                        name="imageUrls"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Additional Images</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                                rows={3}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Multiple image URLs separated by commas for product gallery
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div>
+                        <FormLabel>Additional Images</FormLabel>
+                        <FormDescription className="mb-3">
+                          Multiple images for product gallery (up to 5 images)
+                        </FormDescription>
+                        <ImageUpload
+                          onImageUpload={handleAdditionalImageUpload}
+                          onImageRemove={handleImageRemove}
+                          existingImages={uploadedImages}
+                          maxImages={5}
+                          multiple={true}
+                        />
+                      </div>
 
                       <FormField
                         control={form.control}
@@ -1209,6 +1304,62 @@ export default function EnhancedAdminProducts() {
                   </DialogFooter>
                 </form>
               </Form>
+            </DialogContent>
+          </Dialog>
+
+          {/* Image Gallery Dialog */}
+          <Dialog open={isImageGalleryOpen} onOpenChange={setIsImageGalleryOpen}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Product Images - {productToEdit?.name}</DialogTitle>
+                <DialogDescription>
+                  View all images associated with this product
+                </DialogDescription>
+              </DialogHeader>
+              {productToEdit && (
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Primary Image</h4>
+                    <img
+                      src={productToEdit.imageUrl}
+                      alt={`${productToEdit.name} - Primary`}
+                      className="w-full max-w-md h-64 object-cover rounded-lg border"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `${import.meta.env.VITE_API_URL}/api/images/placeholder.png`;
+                      }}
+                    />
+                  </div>
+                  {productToEdit.imageUrls && productToEdit.imageUrls.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Additional Images ({productToEdit.imageUrls.length})</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {productToEdit.imageUrls.map((imageUrl, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={imageUrl}
+                              alt={`${productToEdit.name} - Image ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg border"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = `${import.meta.env.VITE_API_URL}/api/images/placeholder.png`;
+                              }}
+                            />
+                            <div className="absolute top-1 right-1 bg-black bg-opacity-50 text-white text-xs rounded px-1">
+                              {index + 1}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {(!productToEdit.imageUrls || productToEdit.imageUrls.length === 0) && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No additional images available
+                    </div>
+                  )}
+                </div>
+              )}
             </DialogContent>
           </Dialog>
 

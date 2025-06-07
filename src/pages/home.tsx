@@ -33,12 +33,17 @@ type NewsletterFormData = z.infer<typeof newsletterSchema>;
 
 export default function Home() {
   // Get products and farmers data
-  const { data: allProducts = [] } = useQuery<Product[]>({
+  const { data: productsResponse } = useQuery({
     queryKey: [`${import.meta.env.VITE_API_URL}/api/products`],
+    queryFn: async () => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products?limit=50`);
+      return response.json();
+    }
   });
 
   // Filter featured products on the frontend
-  const products = allProducts.filter(product => product.featured);
+  const allProducts = productsResponse?.products || [];
+  const products = allProducts.filter((product: Product) => product.featured);
 
   const { data: farmers = [] } = useQuery<Farmer[]>({
     queryKey: [`${import.meta.env.VITE_API_URL}/api/farmers/featured`],
@@ -164,7 +169,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-white text-white bg-white/10 font-semibold px-8 py-6 rounded-md transition duration-300"
+                    className="border-white text-white hover:bg-white/10 font-semibold px-8 py-6 rounded-md transition duration-300"
                   >
                     Our Story
                   </Button>

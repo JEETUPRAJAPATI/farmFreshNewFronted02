@@ -61,6 +61,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import ImageUpload from '@/components/admin/ImageUpload';
 
 // Type for Product
 interface Product {
@@ -93,7 +94,7 @@ const productFormSchema = z.object({
   price: z.number().min(0.01, "Price must be greater than 0"),
   category: z.string().min(1, "Please select a category"),
   stockQuantity: z.number().int().min(0, "Stock quantity must be 0 or greater"),
-  imageUrl: z.string().url("Please enter a valid image URL"),
+  imageUrl: z.string().min(1, "Please upload at least one image"),
   farmerId: z.number().int().positive("Please select a valid farmer"),
   featured: z.boolean().optional()
 });
@@ -112,6 +113,7 @@ export default function AdminProducts() {
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [farmers, setFarmers] = useState<{id: number, name: string}[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const productsPerPage = 10;
   const { toast } = useToast();
 
@@ -336,7 +338,25 @@ export default function AdminProducts() {
       farmerId: 1,
       featured: false
     });
+    setUploadedImages([]);
     setIsCreateDialogOpen(true);
+  };
+
+  // Handle image upload
+  const handleImageUpload = (imagePath: string, thumbnailPath: string) => {
+    setUploadedImages(prev => [...prev, imagePath]);
+    form.setValue('imageUrl', imagePath);
+  };
+
+  // Handle image removal
+  const handleImageRemove = (imagePath: string) => {
+    setUploadedImages(prev => prev.filter(img => img !== imagePath));
+    if (uploadedImages.length === 1) {
+      form.setValue('imageUrl', '');
+    } else {
+      const remainingImages = uploadedImages.filter(img => img !== imagePath);
+      form.setValue('imageUrl', remainingImages[0] || '');
+    }
   };
 
   // Handle form submission for creating/editing
@@ -711,19 +731,16 @@ export default function AdminProducts() {
                   />
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div>
+                  <FormLabel>Product Images</FormLabel>
+                  <ImageUpload
+                    onImageUpload={handleImageUpload}
+                    onImageRemove={handleImageRemove}
+                    existingImages={uploadedImages}
+                    maxImages={5}
+                    multiple={true}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
@@ -895,19 +912,16 @@ export default function AdminProducts() {
                   />
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div>
+                  <FormLabel>Product Images</FormLabel>
+                  <ImageUpload
+                    onImageUpload={handleImageUpload}
+                    onImageRemove={handleImageRemove}
+                    existingImages={uploadedImages}
+                    maxImages={5}
+                    multiple={true}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}

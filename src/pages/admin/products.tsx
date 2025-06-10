@@ -112,7 +112,7 @@ export default function AdminProducts() {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
-  const [farmers, setFarmers] = useState<{id: number, name: string}[]>([]);
+  const [farmers, setFarmers] = useState<{ id: number, name: string }[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const productsPerPage = 10;
   const { toast } = useToast();

@@ -44,7 +44,9 @@ function AdminMessages() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/contact-messages`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/contact-messages`]
+      });
       toast({
         title: "Status Updated",
         description: "Message status has been updated successfully.",

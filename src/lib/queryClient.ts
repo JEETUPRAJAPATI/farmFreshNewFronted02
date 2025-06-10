@@ -16,12 +16,12 @@ export async function apiRequest(
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-
+  
   // Add existing headers if any
   if (options?.headers) {
     Object.assign(headers, options.headers);
   }
-
+  
   if (isAdminRequest) {
     const adminToken = localStorage.getItem('adminToken');
     if (adminToken) {
@@ -48,11 +48,17 @@ export const getQueryFn: <T>(options: {
     const url = queryKey[0] as string;
     const isAdminRequest = url.includes('/admin/');
     const headers: Record<string, string> = {};
-
+    
     if (isAdminRequest) {
       const adminToken = localStorage.getItem('adminToken');
       if (adminToken) {
         headers['Authorization'] = `Bearer ${adminToken}`;
+      }
+    } else {
+      // For regular user API calls, use user JWT token
+      const userToken = localStorage.getItem('token');
+      if (userToken) {
+        headers['Authorization'] = `Bearer ${userToken}`;
       }
     }
 

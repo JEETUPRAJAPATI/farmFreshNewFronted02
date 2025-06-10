@@ -235,11 +235,10 @@ export default function ProductReviewSystem({ productId }: ProductReviewSystemPr
                       aria-label={`Rate ${rating} stars`}
                     >
                       <Star
-                        className={`h-8 w-8 cursor-pointer ${
-                          currentRating >= rating
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                        }`}
+                        className={`h-8 w-8 cursor-pointer ${currentRating >= rating
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
+                          }`}
                       />
                     </button>
                   ))}

@@ -182,11 +182,10 @@ export default function ImageUpload({
     <div className="space-y-4">
       {/* Upload Area */}
       <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-          dragActive
-            ? 'border-primary bg-primary/5'
-            : 'border-gray-300 hover:border-gray-400'
-        } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${dragActive
+          ? 'border-primary bg-primary/5'
+          : 'border-gray-300 hover:border-gray-400'
+          } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}

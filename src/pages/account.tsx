@@ -267,259 +267,257 @@ export default function Account() {
               <TabsTrigger value="payments">Payment History</TabsTrigger>
             </TabsList>
 
-          <TabsContent value="profile">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>
-                  Update your account details here
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John Doe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            <TabsContent value="profile">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Profile Information</CardTitle>
+                  <CardDescription>
+                    Update your account details here
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Full Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="John Doe" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                    <div className="flex items-center gap-4">
-                      <Button type="submit" disabled={isLoading}>
-                        {isLoading ? 'Saving...' : 'Save Changes'}
-                      </Button>
-                      <Button variant="outline" type="button" onClick={logout}>
-                        Logout
-                      </Button>
+                      <div className="flex items-center gap-4">
+                        <Button type="submit" disabled={isLoading}>
+                          {isLoading ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                        <Button variant="outline" type="button" onClick={logout}>
+                          Logout
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="payments">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Payment History</CardTitle>
+                  <CardDescription>
+                    View your recent payments
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="text-center py-4">Loading payment history...</div>
+                  ) : payments.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="py-2 px-4 text-left">Date</th>
+                            <th className="py-2 px-4 text-left">Amount</th>
+                            <th className="py-2 px-4 text-left">Status</th>
+                            <th className="py-2 px-4 text-left">Payment ID</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {payments.map((payment: any) => (
+                            <tr key={payment.id} className="border-b">
+                              <td className="py-2 px-4">
+                                {new Date(payment.createdAt).toLocaleDateString()}
+                              </td>
+                              <td className="py-2 px-4">
+                                {payment.currency} {payment.amount.toFixed(2)}
+                              </td>
+                              <td className="py-2 px-4">
+                                <span className={`inline-block px-2 py-1 rounded text-xs ${payment.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                  payment.status === 'failed' ? 'bg-red-100 text-red-800' :
+                                    'bg-yellow-100 text-yellow-800'
+                                  }`}>
+                                  {payment.status}
+                                </span>
+                              </td>
+                              <td className="py-2 px-4 text-sm text-gray-600">
+                                {payment.razorpayPaymentId}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      You don't have any payment history yet.
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="payments">
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment History</CardTitle>
-                <CardDescription>
-                  View your recent payments
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="text-center py-4">Loading payment history...</div>
-                ) : payments.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="py-2 px-4 text-left">Date</th>
-                          <th className="py-2 px-4 text-left">Amount</th>
-                          <th className="py-2 px-4 text-left">Status</th>
-                          <th className="py-2 px-4 text-left">Payment ID</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {payments.map((payment: any) => (
-                          <tr key={payment.id} className="border-b">
-                            <td className="py-2 px-4">
-                              {new Date(payment.createdAt).toLocaleDateString()}
-                            </td>
-                            <td className="py-2 px-4">
-                              {payment.currency} {payment.amount.toFixed(2)}
-                            </td>
-                            <td className="py-2 px-4">
-                              <span className={`inline-block px-2 py-1 rounded text-xs ${
-                                payment.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                payment.status === 'failed' ? 'bg-red-100 text-red-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {payment.status}
-                              </span>
-                            </td>
-                            <td className="py-2 px-4 text-sm text-gray-600">
-                              {payment.razorpayPaymentId}
-                            </td>
+            {/* Order History Tab */}
+            <TabsContent value="orders">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order History</CardTitle>
+                  <CardDescription>
+                    Track all your previous orders
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="text-center py-4">Loading orders...</div>
+                  ) : orders.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="py-2 px-4 text-left">Order ID</th>
+                            <th className="py-2 px-4 text-left">Date</th>
+                            <th className="py-2 px-4 text-left">Total</th>
+                            <th className="py-2 px-4 text-left">Status</th>
+                            <th className="py-2 px-4 text-left">Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    You don't have any payment history yet.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Order History Tab */}
-          <TabsContent value="orders">
-            <Card>
-              <CardHeader>
-                <CardTitle>Order History</CardTitle>
-                <CardDescription>
-                  Track all your previous orders
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="text-center py-4">Loading orders...</div>
-                ) : orders.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="py-2 px-4 text-left">Order ID</th>
-                          <th className="py-2 px-4 text-left">Date</th>
-                          <th className="py-2 px-4 text-left">Total</th>
-                          <th className="py-2 px-4 text-left">Status</th>
-                          <th className="py-2 px-4 text-left">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {orders.map((order: any) => (
-                          <tr key={order.id} className="border-b hover:bg-gray-50">
-                            <td className="py-3 px-4">#{order.id}</td>
-                            <td className="py-3 px-4">
-                              {new Date(order.createdAt).toLocaleDateString()}
-                            </td>
-                            <td className="py-3 px-4 font-medium">
-                              ${order.total.toFixed(2)}
-                            </td>
-                            <td className="py-3 px-4">
-                              <span className={`inline-block px-2 py-1 rounded text-xs ${
-                                order.status === 'delivered' ? 'bg-green-100 text-green-800' :
-                                order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {order.status}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4">
-                              <Button variant="ghost" size="sm">View Details</Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    You haven't placed any orders yet.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                        </thead>
+                        <tbody>
+                          {orders.map((order: any) => (
+                            <tr key={order.id} className="border-b hover:bg-gray-50">
+                              <td className="py-3 px-4">#{order.id}</td>
+                              <td className="py-3 px-4">
+                                {new Date(order.createdAt).toLocaleDateString()}
+                              </td>
+                              <td className="py-3 px-4 font-medium">
+                                ${order.total.toFixed(2)}
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className={`inline-block px-2 py-1 rounded text-xs ${order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                                  order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                    order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                                      'bg-yellow-100 text-yellow-800'
+                                  }`}>
+                                  {order.status}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4">
+                                <Button variant="ghost" size="sm">View Details</Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      You haven't placed any orders yet.
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
 
 
-          {/* Delivered Orders Tab */}
-          <TabsContent value="delivered-orders">
-            <Card>
-              <CardHeader>
-                <CardTitle>Delivered Orders</CardTitle>
-                <CardDescription>
-                  View your successfully delivered orders and rate products
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
-                  <div className="text-center py-4">Loading delivered orders...</div>
-                ) : deliveredOrders.length > 0 ? (
-                  <div className="space-y-6">
-                    {deliveredOrders.map((order: any) => (
-                      <Card key={order.id} className="border-l-4 border-l-green-500">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle className="text-lg">Order #{order.id}</CardTitle>
-                              <CardDescription>
-                                Ordered: {new Date(order.createdAt).toLocaleDateString()} •
-                                Delivered: {order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString() : 'N/A'}
-                              </CardDescription>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-semibold">₹{order.total.toFixed(2)}</div>
-                              <Badge variant="outline" className="text-green-700 border-green-300">
-                                Delivered
-                              </Badge>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            {order.items && order.items.map((item: any) => (
-                              <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div className="flex-1">
-                                  <h4 className="font-medium">{item.productName || 'Product'}</h4>
-                                  <p className="text-sm text-gray-600">
-                                    Quantity: {item.quantity} • Price: ₹{item.price.toFixed(2)}
-                                  </p>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  {item.hasRated ? (
-                                    <div className="flex items-center space-x-1 text-sm text-gray-500">
-                                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                      <span>Rated</span>
-                                    </div>
-                                  ) : item.canRate ? (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => setRatingModal({
-                                        isOpen: true,
-                                        orderId: order.id,
-                                        productId: item.productId,
-                                        productName: item.productName || 'Product'
-                                      })}
-                                    >
-                                      <Star className="w-4 h-4 mr-1" />
-                                      Rate Product
-                                    </Button>
-                                  ) : (
-                                    <span className="text-sm text-gray-400">Cannot rate</span>
-                                  )}
-                                </div>
+            {/* Delivered Orders Tab */}
+            <TabsContent value="delivered-orders">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Delivered Orders</CardTitle>
+                  <CardDescription>
+                    View your successfully delivered orders and rate products
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="text-center py-4">Loading delivered orders...</div>
+                  ) : deliveredOrders.length > 0 ? (
+                    <div className="space-y-6">
+                      {deliveredOrders.map((order: any) => (
+                        <Card key={order.id} className="border-l-4 border-l-green-500">
+                          <CardHeader className="pb-3">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <CardTitle className="text-lg">Order #{order.id}</CardTitle>
+                                <CardDescription>
+                                  Ordered: {new Date(order.createdAt).toLocaleDateString()} •
+                                  Delivered: {order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString() : 'N/A'}
+                                </CardDescription>
                               </div>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    You don't have any delivered orders yet.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                              <div className="text-right">
+                                <div className="font-semibold">₹{order.total.toFixed(2)}</div>
+                                <Badge variant="outline" className="text-green-700 border-green-300">
+                                  Delivered
+                                </Badge>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              {order.items && order.items.map((item: any) => (
+                                <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                  <div className="flex-1">
+                                    <h4 className="font-medium">{item.productName || 'Product'}</h4>
+                                    <p className="text-sm text-gray-600">
+                                      Quantity: {item.quantity} • Price: ₹{item.price.toFixed(2)}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    {item.hasRated ? (
+                                      <div className="flex items-center space-x-1 text-sm text-gray-500">
+                                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                        <span>Rated</span>
+                                      </div>
+                                    ) : item.canRate ? (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setRatingModal({
+                                          isOpen: true,
+                                          orderId: order.id,
+                                          productId: item.productId,
+                                          productName: item.productName || 'Product'
+                                        })}
+                                      >
+                                        <Star className="w-4 h-4 mr-1" />
+                                        Rate Product
+                                      </Button>
+                                    ) : (
+                                      <span className="text-sm text-gray-400">Cannot rate</span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      You don't have any delivered orders yet.
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
 
-        </Tabs>
+          </Tabs>
 
-        {/* Product Rating Modal */}
-        <ProductRatingModal
-          isOpen={ratingModal.isOpen}
-          onClose={() => setRatingModal({ isOpen: false, orderId: 0, productId: 0, productName: '' })}
-          orderId={ratingModal.orderId}
-          productId={ratingModal.productId}
-          productName={ratingModal.productName}
-        />
+          {/* Product Rating Modal */}
+          <ProductRatingModal
+            isOpen={ratingModal.isOpen}
+            onClose={() => setRatingModal({ isOpen: false, orderId: 0, productId: 0, productName: '' })}
+            orderId={ratingModal.orderId}
+            productId={ratingModal.productId}
+            productName={ratingModal.productName}
+          />
         </div>
       </div>
     </Layout>

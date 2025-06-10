@@ -275,11 +275,10 @@ export default function AdminUsers() {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`inline-block px-2 py-1 text-xs rounded-full ${
-                              user.emailVerified
+                            className={`inline-block px-2 py-1 text-xs rounded-full ${user.emailVerified
                                 ? 'bg-green-100 text-green-800'
                                 : 'bg-red-100 text-red-800'
-                            }`}
+                              }`}
                           >
                             {user.emailVerified ? 'Active' : 'Blocked'}
                           </span>
@@ -374,11 +373,10 @@ export default function AdminUsers() {
                   <p className="text-sm text-muted-foreground">Status</p>
                   <p className="font-medium">
                     <span
-                      className={`inline-block px-2 py-1 text-xs rounded-full ${
-                        selectedUser.emailVerified
+                      className={`inline-block px-2 py-1 text-xs rounded-full ${selectedUser.emailVerified
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
-                      }`}
+                        }`}
                     >
                       {selectedUser.emailVerified ? 'Active' : 'Blocked'}
                     </span>

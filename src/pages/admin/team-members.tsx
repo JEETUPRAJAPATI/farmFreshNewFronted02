@@ -306,11 +306,10 @@ function TeamMembersAdmin() {
                   <CardTitle className="text-lg">{member.name}</CardTitle>
                   <CardDescription>{member.jobTitle}</CardDescription>
                   <div className="flex items-center space-x-2 mt-2">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      member.isActive
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}>
+                    <span className={`px-2 py-1 text-xs rounded-full ${member.isActive
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                      }`}>
                       {member.isActive ? "Active" : "Inactive"}
                     </span>
                     <span className="text-xs text-muted-foreground">

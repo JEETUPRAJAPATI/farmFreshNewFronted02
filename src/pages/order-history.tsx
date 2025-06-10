@@ -69,8 +69,17 @@ export default function OrderHistory() {
     queryKey: [`${import.meta.env.VITE_API_URL}/api/orders/history`],
     enabled: isAuthenticated,
     queryFn: async () => {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/history`, {
-        credentials: 'include' // Use session-based authentication
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) {

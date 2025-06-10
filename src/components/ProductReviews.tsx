@@ -164,55 +164,55 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
           {((isAuthenticated && canReview) || !isAuthenticated) && (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Input
-                placeholder="Your Name"
-                {...register("customerName")}
-              />
-              {errors.customerName && (
-                <p className="text-destructive text-sm mt-1">{errors.customerName.message}</p>
-              )}
-            </div>
+              <div>
+                <Input
+                  placeholder="Your Name"
+                  {...register("customerName")}
+                />
+                {errors.customerName && (
+                  <p className="text-destructive text-sm mt-1">{errors.customerName.message}</p>
+                )}
+              </div>
 
-            <div>
-              <div className="flex items-center space-x-2 mb-2">
-                <p className="text-olive font-medium">Your Rating:</p>
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((rating) => (
-                    <button
-                      key={rating}
-                      type="button"
-                      onClick={() => setSelectedRating(rating)}
-                      className="focus:outline-none"
-                    >
-                      <Star
-                        className={`w-6 h-6 ${selectedRating >= rating ? 'fill-[#DDA15E] text-[#DDA15E]' : 'text-gray-300'}`}
-                      />
-                    </button>
-                  ))}
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <p className="text-olive font-medium">Your Rating:</p>
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((rating) => (
+                      <button
+                        key={rating}
+                        type="button"
+                        onClick={() => setSelectedRating(rating)}
+                        className="focus:outline-none"
+                      >
+                        <Star
+                          className={`w-6 h-6 ${selectedRating >= rating ? 'fill-[#DDA15E] text-[#DDA15E]' : 'text-gray-300'}`}
+                        />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <Textarea
-                placeholder="Write your review here"
-                className="min-h-[120px]"
-                {...register("reviewText")}
-              />
-              {errors.reviewText && (
-                <p className="text-destructive text-sm mt-1">{errors.reviewText.message}</p>
-              )}
-            </div>
+              <div>
+                <Textarea
+                  placeholder="Write your review here"
+                  className="min-h-[120px]"
+                  {...register("reviewText")}
+                />
+                {errors.reviewText && (
+                  <p className="text-destructive text-sm mt-1">{errors.reviewText.message}</p>
+                )}
+              </div>
 
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary/90"
-              disabled={addReviewMutation.isPending}
-            >
-              {addReviewMutation.isPending ? "Submitting..." : "Submit Review"}
-            </Button>
-          </form>
+              <Button
+                type="submit"
+                className="bg-primary hover:bg-primary/90"
+                disabled={addReviewMutation.isPending}
+              >
+                {addReviewMutation.isPending ? "Submitting..." : "Submit Review"}
+              </Button>
+            </form>
           )}
         </div>
       </div>

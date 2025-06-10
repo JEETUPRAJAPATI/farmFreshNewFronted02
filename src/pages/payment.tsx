@@ -156,8 +156,12 @@ export default function Payment() {
             await clearCart();
 
             // Invalidate cart and order history queries
-            queryClient.invalidateQueries({ queryKey: [`${import.meta.env.VITE_API_URL}/api/cart`] });
-            queryClient.invalidateQueries({ queryKey: [`${import.meta.env.VITE_API_URL}/api/orders/history`] });
+            queryClient.invalidateQueries({
+              queryKey: [`${import.meta.env.VITE_API_URL}/api/cart`]
+            });
+            queryClient.invalidateQueries({
+              queryKey: [`${import.meta.env.VITE_API_URL}/api/orders/history`]
+            });
 
             toast({
               title: 'Payment Successful',

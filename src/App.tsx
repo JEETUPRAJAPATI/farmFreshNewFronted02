@@ -12,6 +12,8 @@ import OurProcess from "@/pages/our-process";
 import Contact from "@/pages/contact";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
+import ForgotPassword from "@/pages/forgot-password";
+import ResetPassword from "@/pages/reset-password";
 import Account from "@/pages/account";
 import OrderHistory from "@/pages/order-history";
 import Payment from "@/pages/payment";
@@ -36,6 +38,7 @@ import AdminSettings from "@/pages/admin/settings";
 import AdminNewsletter from "@/pages/admin/newsletter";
 import AdminMessagesWithLayout from "@/pages/admin/messages";
 import AdminTeamMembers from "@/pages/admin/team-members";
+import AdminCategoryManagement from "@/pages/admin/category-management";
 
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
@@ -65,9 +68,10 @@ function App() {
               <Route path="/admin/messages" component={AdminMessagesWithLayout} />
               <Route path="/admin/inventory" component={AdminInventory} />
               <Route path="/admin/discounts" component={AdminDiscounts} />
+              <Route path="/admin/category-management" component={AdminCategoryManagement} />
 
               <Route path="/admin/settings" component={AdminSettings} />
-
+              
               {/* Main Store Routes - Wrapped in Layout */}
               <Route>
                 {() => (
@@ -84,17 +88,19 @@ function App() {
                         <Route path="/contact" component={Contact} />
                         <Route path="/login" component={Login} />
                         <Route path="/register" component={Register} />
+                        <Route path="/forgot-password" component={ForgotPassword} />
+                        <Route path="/reset-password" component={ResetPassword} />
                         <Route path="/account" component={Account} />
                         <Route path="/order-history" component={OrderHistory} />
                         <Route path="/payment" component={Payment} />
                         <Route path="/payment-success" component={PaymentSuccess} />
-
+                        
                         {/* Customer Care Pages */}
                         <Route path="/faqs" component={FAQs} />
                         <Route path="/shipping-returns" component={ShippingReturns} />
                         <Route path="/track-order" component={TrackOrder} />
                         <Route path="/privacy-policy" component={PrivacyPolicy} />
-
+                        
                         {/* 404 Route */}
                         <Route component={NotFound} />
                       </Switch>

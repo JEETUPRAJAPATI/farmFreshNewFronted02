@@ -82,7 +82,9 @@ export default function AdminDiscounts() {
       body: JSON.stringify(data),
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/discounts`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/discounts`]
+      });
       setIsCreateModalOpen(false);
       toast({
         title: "Success",
@@ -107,7 +109,9 @@ export default function AdminDiscounts() {
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/discounts`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/discounts`]
+      });
       setIsEditModalOpen(false);
       setEditingDiscount(null);
       toast({
@@ -131,7 +135,9 @@ export default function AdminDiscounts() {
       method: 'DELETE',
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/discounts`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/discounts`]
+      });
       toast({
         title: "Success",
         description: "Discount deleted successfully",

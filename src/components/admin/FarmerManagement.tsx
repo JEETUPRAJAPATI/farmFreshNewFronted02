@@ -161,7 +161,9 @@ export default function FarmerManagement() {
         title: "Farmer added successfully",
         variant: "default"
       });
-      queryClient.invalidateQueries({ queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/farmers`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/farmers`]
+      });
       setIsAddDialogOpen(false);
       addForm.reset();
     },
@@ -187,7 +189,9 @@ export default function FarmerManagement() {
         title: "Farmer updated successfully",
         variant: "default"
       });
-      queryClient.invalidateQueries({ queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/farmers`] });
+      queryClient.invalidateQueries({
+        queryKey: [`${import.meta.env.VITE_API_URL}/api/admin/farmers`]
+      });
       setIsEditDialogOpen(false);
     },
     onError: (error) => {

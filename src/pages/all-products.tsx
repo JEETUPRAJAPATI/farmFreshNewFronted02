@@ -18,7 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ProductCategory, Product } from "@shared/schema";
 import { useAnimations } from "@/hooks/use-animations";
 import { cn, debounce } from "@/lib/utils";
-
+import placeholder from "@/placeholder.svg"
 // Custom hook for URL search params with navigation
 const useSearchParams = () => {
   const [location, navigate] = useLocation();

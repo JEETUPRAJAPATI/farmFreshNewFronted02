@@ -8,6 +8,7 @@ import { useAnimations } from "@/hooks/use-animations";
 
 export default function AllFarmers() {
   // Get all farmers data
+  window.scrollTo(0, 0);
   const { data: farmers = [], isLoading } = useQuery({
     queryKey: [`${import.meta.env.VITE_API_URL}/api/farmers`],
   });

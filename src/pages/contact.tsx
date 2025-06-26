@@ -8,7 +8,7 @@ import ContactFormWithStorage from "@/components/ContactFormWithStorage";
 export default function Contact() {
   // Set up animations
   const { setupScrollAnimation } = useAnimations();
-
+  window.scrollTo(0, 0);
   useEffect(() => {
     setupScrollAnimation();
   }, [setupScrollAnimation]);

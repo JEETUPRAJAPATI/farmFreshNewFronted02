@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 export default function OurProcess() {
   // Set up animations
   const { setupScrollAnimation } = useAnimations();
-
+  window.scrollTo(0, 0);
   useEffect(() => {
     setupScrollAnimation();
   }, [setupScrollAnimation]);

@@ -50,6 +50,7 @@ export default function Home() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<number | null>(
     null
   );
+  window.scrollTo(0, 0);
   const [product, setProduct] = useState([]);
   // Get products and farmers data
   const { data: productsResponse } = useQuery({
@@ -386,7 +387,7 @@ export default function Home() {
                 for their remarkable work while delivering exceptionally fresh
                 products to your doorstep.
               </p>
-              <Link href="#process">
+              <Link href="/our-process">
                 <Button className="bg-primary hover:bg-primary-dark text-white font-semibold transition duration-300">
                   Learn About Our Process
                 </Button>

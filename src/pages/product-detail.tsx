@@ -17,7 +17,7 @@ import { useAnimations } from "@/hooks/use-animations";
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const productId = parseInt(id);
-
+  window.scrollTo(0, 0);
   // Animation controller
   const { setupScrollAnimation } = useAnimations();
 

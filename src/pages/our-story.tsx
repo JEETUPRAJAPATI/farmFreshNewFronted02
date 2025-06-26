@@ -10,7 +10,7 @@ import { type TeamMember } from "@shared/schema";
 export default function OurStory() {
   // Set up animations
   const { setupScrollAnimation } = useAnimations();
-
+  window.scrollTo(0, 0);
   // Fetch team members from database
   const { data: teamMembers = [], isLoading: isLoadingTeam } = useQuery<TeamMember[]>({
     queryKey: [`${import.meta.env.VITE_API_URL}/api/team-members`],

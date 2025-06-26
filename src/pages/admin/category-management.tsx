@@ -169,7 +169,7 @@ export default function CategoryManagement() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/categories/${editingCategory.id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/categories/${editingCategory.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

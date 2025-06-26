@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AnimatedText } from "@/components/ui/animated-text";
 import { ParallaxSection } from "@/components/ui/parallax-section";
 import ProductCard from "@/components/ProductCard";
@@ -20,7 +26,13 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAnimations } from "@/hooks/use-animations";
 import { ChevronDown, Leaf, Truck, Sprout, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
-import type { Product, Farmer, Testimonial as TestimonialType, TeamMember, Category } from "@shared/schema";
+import type {
+  Product,
+  Farmer,
+  Testimonial as TestimonialType,
+  TeamMember,
+  Category,
+} from "@shared/schema";
 
 const newsletterSchema = z.object({
   name: z.string().optional(),
@@ -35,15 +47,19 @@ type NewsletterFormData = z.infer<typeof newsletterSchema>;
 export default function Home() {
   // State for category and subcategory filtering
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<number | null>(null);
-
+  const [selectedSubcategory, setSelectedSubcategory] = useState<number | null>(
+    null
+  );
+  const [product, setProduct] = useState([]);
   // Get products and farmers data
   const { data: productsResponse } = useQuery({
     queryKey: [`${import.meta.env.VITE_API_URL}/api/products`],
     queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products?limit=50`);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/products?limit=50`
+      );
       return response.json();
-    }
+    },
   });
 
   // Filter featured products on the frontend
@@ -61,10 +77,18 @@ export default function Home() {
 
   // Get subcategories when a category is selected
   const { data: subcategories = [] } = useQuery<Category[]>({
-    queryKey: [`${import.meta.env.VITE_API_URL}/api/categories`, selectedCategory, "subcategories"],
+    queryKey: [
+      `${import.meta.env.VITE_API_URL}/api/categories`,
+      selectedCategory,
+      "subcategories",
+    ],
     queryFn: async () => {
       if (!selectedCategory) return [];
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/categories/${selectedCategory}/subcategories`);
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/categories/${selectedCategory}/subcategories`
+      );
       return response.json();
     },
     enabled: !!selectedCategory,
@@ -85,8 +109,12 @@ export default function Home() {
   const filteredProducts = products.filter((product: Product) => {
     if (!selectedCategory && !selectedSubcategory) return true;
 
-    const selectedCategoryName = categories.find(cat => cat.id === selectedCategory)?.name;
-    const selectedSubcategoryName = subcategories.find(sub => sub.id === selectedSubcategory)?.name;
+    const selectedCategoryName = categories.find(
+      (cat) => cat.id === selectedCategory
+    )?.name;
+    const selectedSubcategoryName = subcategories.find(
+      (sub) => sub.id === selectedSubcategory
+    )?.name;
 
     if (selectedSubcategory) {
       return product.subcategory === selectedSubcategoryName;
@@ -121,13 +149,16 @@ export default function Home() {
 
   const onSubmit = async (data: NewsletterFormData) => {
     try {
-      await apiRequest(`${import.meta.env.VITE_API_URL}/api/newsletter/subscribe`, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      await apiRequest(
+        `${import.meta.env.VITE_API_URL}/api/newsletter/subscribe`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       toast({
         title: "Subscription successful!",
         description: "Thank you for joining our community.",
@@ -141,6 +172,22 @@ export default function Home() {
       });
     }
   };
+
+  const productData = async () => {
+    try {
+      const response = await apiRequest(
+        `${import.meta.env.VITE_API_URL}/api/products`
+      );
+      console.log("Nidhi:", response.products);
+      setProduct(response.products[0] || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  useEffect(() => {
+    productData();
+  }, []);
 
   return (
     <>
@@ -198,7 +245,7 @@ export default function Home() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="border-white text-white hover:bg-white/10 font-semibold px-8 py-6 rounded-md transition duration-300"
+                    className="border-white text-white bg-white/10 font-semibold px-8 py-6 rounded-md transition duration-300"
                   >
                     Our Story
                   </Button>
@@ -218,27 +265,35 @@ export default function Home() {
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-20 h-20 rounded-full overflow-hidden shrink-0">
                   <img
-                    src="https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                    src={
+                      product?.imageUrl ||
+                      "https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                    }
                     alt="Featured product"
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div>
                   <h3 className="font-heading text-forest text-xl font-bold">
-                    Mountain Coffee Beans
+                    {product?.name || ""}
                   </h3>
                   <div className="flex items-center text-sm text-secondary font-medium">
                     <Leaf className="h-4 w-4 mr-1" />
-                    <span>Naturally Grown</span>
+                    <span>{product?.category}</span>
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-forest text-xl font-bold">₹12.50</span>
-                <Button className="bg-primary hover:bg-primary/90 text-white">
+                <span className="text-forest text-xl font-bold">
+                  ₹{product.price}
+                </span>
+                <Link
+                  to={`/products/${product.id}`}
+                  className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md font-semibold transition duration-300"
+                >
                   View Details
-                </Button>
+                </Link>
               </div>
             </motion.div>
           </div>
@@ -378,7 +433,9 @@ export default function Home() {
               {categories.map((category) => (
                 <Button
                   key={category.id}
-                  variant={selectedCategory === category.id ? "default" : "outline"}
+                  variant={
+                    selectedCategory === category.id ? "default" : "outline"
+                  }
                   className="px-5 py-2 rounded-full font-medium transition duration-200"
                   onClick={() => {
                     setSelectedCategory(category.id);
@@ -399,12 +456,17 @@ export default function Home() {
                   className="px-4 py-1 rounded-full text-sm transition duration-200"
                   onClick={() => setSelectedSubcategory(null)}
                 >
-                  All {categories.find(cat => cat.id === selectedCategory)?.name}
+                  All{" "}
+                  {categories.find((cat) => cat.id === selectedCategory)?.name}
                 </Button>
                 {subcategories.map((subcategory) => (
                   <Button
                     key={subcategory.id}
-                    variant={selectedSubcategory === subcategory.id ? "default" : "outline"}
+                    variant={
+                      selectedSubcategory === subcategory.id
+                        ? "default"
+                        : "outline"
+                    }
                     size="sm"
                     className="px-4 py-1 rounded-full text-sm transition duration-200"
                     onClick={() => setSelectedSubcategory(subcategory.id)}
@@ -709,8 +771,9 @@ export default function Home() {
                 Meet Our Team
               </h2>
               <p className="text-olive text-lg">
-                The passionate individuals working behind the scenes to connect farmers with consumers
-                while preserving traditional growing methods.
+                The passionate individuals working behind the scenes to connect
+                farmers with consumers while preserving traditional growing
+                methods.
               </p>
             </div>
 

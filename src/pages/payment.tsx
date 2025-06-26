@@ -230,51 +230,50 @@ export default function Payment() {
   }
 
   return (
-    <Layout>
-      <div className="container mx-auto py-10 flex justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-2xl">Complete Your Payment</CardTitle>
-            <CardDescription>
-              Secure payment via Razorpay
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <h3 className="font-medium">Order Summary</h3>
-                <div className="border rounded-md p-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Description:</span>
-                    <span>{orderDetails.description}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Amount:</span>
-                    <span className="font-semibold">
-                      {orderDetails.currency} {orderDetails.amount.toFixed(2)}
-                    </span>
-                  </div>
+
+    <div className="container mx-auto py-10 flex justify-center pt-20">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl">Complete Your Payment</CardTitle>
+          <CardDescription>
+            Secure payment via Razorpay
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="font-medium">Order Summary</h3>
+              <div className="border rounded-md p-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Description:</span>
+                  <span>{orderDetails.description}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Amount:</span>
+                  <span className="font-semibold">
+                    {orderDetails.currency} {orderDetails.amount.toFixed(2)}
+                  </span>
                 </div>
               </div>
-
-              <div className="text-sm text-gray-500">
-                <p>
-                  Your payment is secured by Razorpay. We do not store your payment details.
-                </p>
-              </div>
             </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              className="w-full"
-              onClick={handlePayment}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Processing...' : 'Pay Now'}
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    </Layout>
+
+            <div className="text-sm text-gray-500">
+              <p>
+                Your payment is secured by Razorpay. We do not store your payment details.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button
+            className="w-full"
+            onClick={handlePayment}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Processing...' : 'Pay Now'}
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

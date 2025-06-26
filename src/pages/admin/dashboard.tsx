@@ -3,6 +3,8 @@ import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import AdminNav from '../../components/admin/AdminNav';
 import AdminAuthWrapper from '../../components/admin/AdminAuthWrapper';
+
+import AdminLayout from '@/components/admin/AdminLayout';
 import {
   BarChart,
   LineChart,
@@ -145,7 +147,7 @@ export default function AdminDashboard() {
 
             <div className="flex space-x-3">
               <button
-                onClick={() => setLocation('/admin/products')}
+                onClick={() => setLocation('/admin/enhanced-products')}
                 className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
               >
                 Products
@@ -341,7 +343,10 @@ export default function AdminDashboard() {
 
   return (
     <AdminAuthWrapper>
-      {renderDashboard()}
+      <AdminLayout>
+        {renderDashboard()}
+      </AdminLayout>
+
     </AdminAuthWrapper>
   );
 }

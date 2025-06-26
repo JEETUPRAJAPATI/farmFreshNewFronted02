@@ -161,7 +161,7 @@ export default function OrderHistory() {
   const orders = orderHistory?.orders || [];
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 pt-20">
       <div className="flex items-center gap-4 mb-8">
         <Link href="/account">
           <Button variant="outline" size="sm">

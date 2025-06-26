@@ -70,7 +70,7 @@ export default function OurStory() {
             </div>
             <div>
               <img
-                src="https://images.pexels.com/photos/1084545/pexels-photo-1084545.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+                src="https://images.pexels.com/photos/235725/pexels-photo-235725.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
                 alt="Farmers in a traditional farm"
                 className="rounded-lg shadow-xl w-full h-auto object-cover"
               />
@@ -304,12 +304,12 @@ export default function OurStory() {
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 bg-forest text-white">
+      <section className="py-16 bg-forest text-black">
         <div className="container mx-auto px-4 text-center">
           <h2 className="font-heading text-3xl md:text-4xl font-bold mb-6">
             Join Our Mission
           </h2>
-          <p className="text-white/80 text-lg max-w-2xl mx-auto mb-8">
+          <p className="text-black/80 text-lg max-w-2xl mx-auto mb-8">
             Experience the difference that traditionally grown, natural products can make in your life while supporting the farmers who preserve these valuable practices.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -319,7 +319,7 @@ export default function OurStory() {
               </Button>
             </Link>
             <Link href="/contact">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="border-black text-black hover:bg-black/10">
                 Get In Touch
               </Button>
             </Link>

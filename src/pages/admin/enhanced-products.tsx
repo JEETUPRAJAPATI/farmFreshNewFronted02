@@ -1,12 +1,7 @@
-import { useState, useEffect } from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
-import AdminAuthWrapper from '@/components/admin/AdminAuthWrapper';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { useState, useEffect, useCallback } from "react";
+import AdminLayout from "@/components/admin/AdminLayout";
+import AdminAuthWrapper from "@/components/admin/AdminAuthWrapper";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -15,8 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Plus,
   Search,
@@ -32,10 +27,10 @@ import {
   Tag,
   Leaf,
   Shield,
-  Crown
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
+  Crown,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -62,18 +57,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import ImageUpload from '@/components/admin/ImageUpload';
+import ImageUpload from "@/components/admin/ImageUpload";
 
 // Enhanced Product type with all fields
 interface EnhancedProduct {
@@ -111,8 +101,12 @@ interface EnhancedProduct {
 const enhancedProductFormSchema = z.object({
   // Basic Information
   name: z.string().min(3, "Name must be at least 3 characters"),
-  shortDescription: z.string().min(10, "Short description must be at least 10 characters"),
-  description: z.string().min(20, "Full description must be at least 20 characters"),
+  shortDescription: z
+    .string()
+    .min(10, "Short description must be at least 10 characters"),
+  description: z
+    .string()
+    .min(20, "Full description must be at least 20 characters"),
   category: z.string().min(1, "Please select a category"),
   subcategory: z.string().optional(),
 
@@ -146,12 +140,12 @@ const enhancedProductFormSchema = z.object({
   enableFacebookShare: z.boolean().default(true),
   enableInstagramShare: z.boolean().default(true),
 
-  featured: z.boolean().default(false)
+  featured: z.boolean().default(false),
 });
 
 export default function EnhancedAdminProducts() {
   const [products, setProducts] = useState<EnhancedProduct[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -159,15 +153,26 @@ export default function EnhancedAdminProducts() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<EnhancedProduct | null>(null);
-  const [productToEdit, setProductToEdit] = useState<EnhancedProduct | null>(null);
+  const [productToDelete, setProductToDelete] =
+    useState<EnhancedProduct | null>(null);
+  const [productToEdit, setProductToEdit] = useState<EnhancedProduct | null>(
+    null
+  );
   const [categories, setCategories] = useState<string[]>([]);
-  const [mainCategories, setMainCategories] = useState<{ id: number, name: string, slug: string }[]>([]);
-  const [subcategories, setSubcategories] = useState<{ id: number, name: string, slug: string, parentId: number }[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
-  const [farmers, setFarmers] = useState<{ id: number, name: string, location: string }[]>([]);
+  const [mainCategories, setMainCategories] = useState<
+    { id: number; name: string; slug: string }[]
+  >([]);
+  const [subcategories, setSubcategories] = useState<
+    { id: number; name: string; slug: string; parentId: number }[]
+  >([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null
+  );
+  const [farmers, setFarmers] = useState<
+    { id: number; name: string; location: string }[]
+  >([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const [primaryImage, setPrimaryImage] = useState<string>('');
+  const [primaryImage, setPrimaryImage] = useState<string>("");
   const [isImageGalleryOpen, setIsImageGalleryOpen] = useState(false);
   const productsPerPage = 5;
   const { toast } = useToast();
@@ -199,81 +204,96 @@ export default function EnhancedAdminProducts() {
       enableWhatsappShare: true,
       enableFacebookShare: true,
       enableInstagramShare: true,
-      featured: false
-    }
+      featured: false,
+    },
   });
 
   // Fetch products from API
-  const fetchProducts = async (page = 1) => {
+  const fetchProducts = useCallback(async (page = 1) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem("adminToken");
       if (!token) {
-        throw new Error('Authentication required');
+        throw new Error("Authentication required");
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products?page=${page}&limit=${productsPerPage}&sort=id&order=desc`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Cache-Control': 'no-cache'
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/admin/products?page=${page}&limit=${productsPerPage}&sort=id&order=desc`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Cache-Control": "no-cache",
+          },
         }
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch products');
+        throw new Error("Failed to fetch products");
       }
 
       const data = await response.json();
       setProducts(data.products || []);
       setTotalPages(data.pagination?.totalPages || 1);
       setCurrentPage(data.pagination?.page || 1);
+      setIsLoading(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
       toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Failed to fetch products',
-        variant: 'destructive',
+        title: "Error",
+        description:
+          err instanceof Error ? err.message : "Failed to fetch products",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Fetch main categories
   const fetchMainCategories = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/categories/main`, {
-        headers: {
-          'Cache-Control': 'no-cache'
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/categories/main`,
+        {
+          headers: {
+            "Cache-Control": "no-cache",
+          },
         }
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
         setMainCategories(data);
       }
     } catch (error) {
-      console.error('Failed to fetch main categories:', error);
+      console.error("Failed to fetch main categories:", error);
     }
   };
 
   // Fetch subcategories for a specific parent category
   const fetchSubcategories = async (parentId: number) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/categories/${parentId}/subcategories`, {
-        headers: {
-          'Cache-Control': 'no-cache'
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/categories/${parentId}/subcategories`,
+        {
+          headers: {
+            "Cache-Control": "no-cache",
+          },
         }
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
         setSubcategories(data);
       }
     } catch (error) {
-      console.error('Failed to fetch subcategories:', error);
+      console.error("Failed to fetch subcategories:", error);
       setSubcategories([]);
     }
   };
@@ -281,14 +301,17 @@ export default function EnhancedAdminProducts() {
   // Fetch categories (existing function for backward compatibility)
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem("adminToken");
       if (!token) return;
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/product-categories`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/admin/product-categories`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -302,15 +325,19 @@ export default function EnhancedAdminProducts() {
   // Fetch farmers for product creation/editing
   const fetchFarmers = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/farmers`);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/farmers`
+      );
 
       if (response.ok) {
         const data = await response.json();
-        setFarmers(data.map((farmer: any) => ({
-          id: farmer.id,
-          name: farmer.name,
-          location: farmer.location || ''
-        })));
+        setFarmers(
+          data.map((farmer: any) => ({
+            id: farmer.id,
+            name: farmer.name,
+            location: farmer.location || "",
+          }))
+        );
       }
     } catch (err) {
       // Silent error handling for farmers
@@ -327,12 +354,14 @@ export default function EnhancedAdminProducts() {
 
   // Handle category change to load subcategories
   const handleCategoryChange = (categoryName: string) => {
-    const selectedCategory = mainCategories.find(cat => cat.name === categoryName);
+    const selectedCategory = mainCategories.find(
+      (cat) => cat.name === categoryName
+    );
     if (selectedCategory) {
       setSelectedCategoryId(selectedCategory.id);
       fetchSubcategories(selectedCategory.id);
       // Clear subcategory when category changes
-      form.setValue('subcategory', '');
+      form.setValue("subcategory", "");
     } else {
       setSelectedCategoryId(null);
       setSubcategories([]);
@@ -340,10 +369,12 @@ export default function EnhancedAdminProducts() {
   };
 
   // Filter products based on search term
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (product.sku && product.sku.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.sku &&
+        product.sku.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   // Handle page change
@@ -355,20 +386,23 @@ export default function EnhancedAdminProducts() {
   // Delete a product
   const handleDeleteProduct = async (id: number) => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem("adminToken");
       if (!token) {
-        throw new Error('Authentication required');
+        throw new Error("Authentication required");
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/admin/products/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to delete product');
+        throw new Error("Failed to delete product");
       }
 
       fetchProducts(currentPage);
@@ -379,9 +413,10 @@ export default function EnhancedAdminProducts() {
       });
     } catch (err) {
       toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Failed to delete product',
-        variant: 'destructive',
+        title: "Error",
+        description:
+          err instanceof Error ? err.message : "Failed to delete product",
+        variant: "destructive",
       });
     } finally {
       setIsDeleteDialogOpen(false);
@@ -392,33 +427,39 @@ export default function EnhancedAdminProducts() {
   // Toggle product featured status
   const handleToggleFeatured = async (id: number, currentFeatured: boolean) => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem("adminToken");
       if (!token) {
-        throw new Error('Authentication required');
+        throw new Error("Authentication required");
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products/${id}/featured`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/admin/products/${id}/featured`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to update product');
+        throw new Error("Failed to update product");
       }
 
       fetchProducts(currentPage);
 
       toast({
         title: currentFeatured ? "Product unfeatured" : "Product featured",
-        description: `The product has been ${currentFeatured ? 'removed from' : 'added to'} featured products.`,
+        description: `The product has been ${
+          currentFeatured ? "removed from" : "added to"
+        } featured products.`,
       });
     } catch (err) {
       toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Failed to update product',
-        variant: 'destructive',
+        title: "Error",
+        description:
+          err instanceof Error ? err.message : "Failed to update product",
+        variant: "destructive",
       });
     }
   };
@@ -427,15 +468,17 @@ export default function EnhancedAdminProducts() {
   const setupEditForm = (product: EnhancedProduct) => {
     form.reset({
       name: product.name,
-      shortDescription: product.shortDescription || product.description.substring(0, 100),
+      shortDescription:
+        product.shortDescription || product.description.substring(0, 100),
       description: product.description,
       price: product.price,
       discountPrice: product.discountPrice,
       category: product.category,
+      subcategory: product.subcategory || "",
       sku: product.sku || "",
       stockQuantity: product.stockQuantity,
       imageUrl: product.imageUrl,
-      imageUrls: product.imageUrls?.join(', ') || "",
+      imageUrls: product.imageUrls?.join(", ") || "",
       videoUrl: product.videoUrl || "",
       farmerId: product.farmerId,
       naturallyGrown: product.naturallyGrown || false,
@@ -448,8 +491,20 @@ export default function EnhancedAdminProducts() {
       enableWhatsappShare: product.enableWhatsappShare !== false,
       enableFacebookShare: product.enableFacebookShare !== false,
       enableInstagramShare: product.enableInstagramShare !== false,
-      featured: product.featured || false
+      featured: product.featured || false,
     });
+
+    // Load subcategories for the selected category
+    const selectedCategory = mainCategories.find(
+      (cat) => cat.name === product.category
+    );
+    if (selectedCategory) {
+      setSelectedCategoryId(selectedCategory.id);
+      fetchSubcategories(selectedCategory.id);
+    } else {
+      setSelectedCategoryId(null);
+      setSubcategories([]);
+    }
 
     // Set existing images for the upload components
     setPrimaryImage(product.imageUrl);
@@ -460,30 +515,46 @@ export default function EnhancedAdminProducts() {
   };
 
   // Handle primary image upload
-  const handlePrimaryImageUpload = (imagePath: string, thumbnailPath: string) => {
+  const handlePrimaryImageUpload = (
+    imagePath: string,
+    thumbnailPath: string
+  ) => {
     setPrimaryImage(imagePath);
-    form.setValue('imageUrl', imagePath);
+    form.setValue("imageUrl", imagePath);
   };
 
   // Handle additional images upload
-  const handleAdditionalImageUpload = (imagePath: string, thumbnailPath: string) => {
-    setUploadedImages(prev => [...prev, imagePath]);
-    const currentImages = form.getValues('imageUrls');
-    const imageArray = currentImages ? currentImages.split(',').map(img => img.trim()).filter(img => img) : [];
+  const handleAdditionalImageUpload = (
+    imagePath: string,
+    thumbnailPath: string
+  ) => {
+    setUploadedImages((prev) => [...prev, imagePath]);
+    const currentImages = form.getValues("imageUrls");
+    const imageArray = currentImages
+      ? currentImages
+          .split(",")
+          .map((img) => img.trim())
+          .filter((img) => img)
+      : [];
     imageArray.push(imagePath);
-    form.setValue('imageUrls', imageArray.join(','));
+    form.setValue("imageUrls", imageArray.join(","));
   };
 
   // Handle image removal
   const handleImageRemove = (imagePath: string) => {
     if (imagePath === primaryImage) {
-      setPrimaryImage('');
-      form.setValue('imageUrl', '');
+      setPrimaryImage("");
+      form.setValue("imageUrl", "");
     } else {
-      setUploadedImages(prev => prev.filter(img => img !== imagePath));
-      const currentImages = form.getValues('imageUrls');
-      const imageArray = currentImages ? currentImages.split(',').map(img => img.trim()).filter(img => img && img !== imagePath) : [];
-      form.setValue('imageUrls', imageArray.join(','));
+      setUploadedImages((prev) => prev.filter((img) => img !== imagePath));
+      const currentImages = form.getValues("imageUrls");
+      const imageArray = currentImages
+        ? currentImages
+            .split(",")
+            .map((img) => img.trim())
+            .filter((img) => img && img !== imagePath)
+        : [];
+      form.setValue("imageUrls", imageArray.join(","));
     }
   };
 
@@ -496,6 +567,7 @@ export default function EnhancedAdminProducts() {
       price: 0,
       discountPrice: undefined,
       category: "",
+      subcategory: "",
       sku: "",
       stockQuantity: 0,
       imageUrl: "",
@@ -512,29 +584,33 @@ export default function EnhancedAdminProducts() {
       enableWhatsappShare: true,
       enableFacebookShare: true,
       enableInstagramShare: true,
-      featured: false
+      featured: false,
     });
+
+    // Reset category-related state
+    setSelectedCategoryId(null);
+    setSubcategories([]);
     setUploadedImages([]);
-    setPrimaryImage('');
+    setPrimaryImage("");
     setIsCreateDialogOpen(true);
   };
 
   // Handle form submission for creating/editing
   const onSubmit = async (data: z.infer<typeof enhancedProductFormSchema>) => {
     try {
-      console.log('Form submission started with data:', data);
+      console.log("Form submission started with data:", data);
 
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem("adminToken");
       if (!token) {
-        throw new Error('Authentication required');
+        throw new Error("Authentication required");
       }
 
       // Ensure we have an image URL from uploads
       if (!primaryImage) {
         toast({
-          title: 'Validation Error',
-          description: 'Please upload a primary image',
-          variant: 'destructive',
+          title: "Validation Error",
+          description: "Please upload a primary image",
+          variant: "destructive",
         });
         return;
       }
@@ -544,7 +620,10 @@ export default function EnhancedAdminProducts() {
 
       // Process image URLs if provided
       const imageUrls = data.imageUrls
-        ? data.imageUrls.split(',').map(url => url.trim()).filter(url => url)
+        ? data.imageUrls
+            .split(",")
+            .map((url) => url.trim())
+            .filter((url) => url)
         : uploadedImages;
 
       const requestData = {
@@ -556,40 +635,53 @@ export default function EnhancedAdminProducts() {
         sku: data.sku || null,
         metaTitle: data.metaTitle || null,
         metaDescription: data.metaDescription || null,
-        slug: data.slug || null
+        slug: data.slug || null,
       };
 
-      console.log('Sending request data:', requestData);
+      console.log("Sending request data:", requestData);
 
       let response;
 
       if (productToEdit) {
         // Update existing product
-        response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products/${productToEdit.id}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(requestData)
-        });
+        response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/admin/products/${
+            productToEdit.id
+          }`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          }
+        );
       } else {
         // Create new product
-        response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/products`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(requestData)
-        });
+        response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/admin/products`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestData),
+          }
+        );
       }
 
       const responseData = await response.json();
-      console.log('Response:', response.status, responseData);
+      console.log("Response:", response.status, responseData);
 
       if (!response.ok) {
-        throw new Error(responseData.message || (productToEdit ? 'Failed to update product' : 'Failed to create product'));
+        throw new Error(
+          responseData.message ||
+            (productToEdit
+              ? "Failed to update product"
+              : "Failed to create product")
+        );
       }
 
       // Refresh to first page to show newly created product
@@ -602,7 +694,9 @@ export default function EnhancedAdminProducts() {
 
       toast({
         title: productToEdit ? "Product updated" : "Product created",
-        description: productToEdit ? "The product has been updated successfully." : "The product has been created successfully.",
+        description: productToEdit
+          ? "The product has been updated successfully."
+          : "The product has been created successfully.",
       });
 
       // Close dialogs and reset state
@@ -610,17 +704,17 @@ export default function EnhancedAdminProducts() {
       setIsCreateDialogOpen(false);
       setProductToEdit(null);
       setUploadedImages([]);
-      setPrimaryImage('');
+      setPrimaryImage("");
 
       // Reset form
       form.reset();
-
     } catch (err) {
-      console.error('Form submission error:', err);
+      console.error("Form submission error:", err);
       toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Failed to save product',
-        variant: 'destructive',
+        title: "Error",
+        description:
+          err instanceof Error ? err.message : "Failed to save product",
+        variant: "destructive",
       });
     }
   };
@@ -631,8 +725,12 @@ export default function EnhancedAdminProducts() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Enhanced Product Management</h1>
-              <p className="text-muted-foreground">Comprehensive product catalog management with advanced features</p>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Enhanced Product Management
+              </h1>
+              <p className="text-muted-foreground">
+                Comprehensive product catalog management with advanced features
+              </p>
             </div>
             <Button onClick={setupCreateForm}>
               <Plus className="h-4 w-4 mr-2" />
@@ -691,27 +789,35 @@ export default function EnhancedAdminProducts() {
                           <TableRow key={product.id}>
                             <TableCell>
                               <div className="flex items-center space-x-3">
-                                <div className="relative">
+                                <div className="relative ">
                                   <img
-                                    src={product.imageUrl.startsWith('http') ? product.imageUrl : product.imageUrl}
+                                    src={
+                                      product.imageUrl.startsWith("http")
+                                        ? product.imageUrl
+                                        : product.imageUrl
+                                    }
                                     alt={product.name}
-                                    className="w-12 h-12 rounded object-cover border"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      target.src = `${import.meta.env.VITE_API_URL}/api/images/placeholder.png`;
-                                    }}
+                                    className="w-20 h-12 rounded object-cover border"
+                                 
                                   />
-                                  {product.imageUrls && product.imageUrls.length > 0 && (
-                                    <div className="absolute -bottom-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                      +{product.imageUrls.length}
-                                    </div>
-                                  )}
+                                  {product.imageUrls &&
+                                    product.imageUrls.length > 0 && (
+                                      <div className="absolute -bottom-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                        +{product.imageUrls.length}
+                                      </div>
+                                    )}
                                 </div>
                                 <div>
-                                  <p className="font-medium">{product.name}</p>
-                                  <p className="text-sm text-muted-foreground">{product.shortDescription}</p>
+                                  <p className="font-medium text-nowrap max-w-40 overflow-hidden text-ellipsis">
+                                    {product.name}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground text-nowrap max-w-40 overflow-hidden text-ellipsis">
+                                    {product.shortDescription}
+                                  </p>
                                   {product.sku && (
-                                    <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      SKU: {product.sku}
+                                    </p>
                                   )}
                                 </div>
                               </div>
@@ -722,36 +828,52 @@ export default function EnhancedAdminProducts() {
                                 <p>₹{product.price.toFixed(2)}</p>
                                 {product.discountPrice && (
                                   <p className="text-sm text-green-600">
-                                    Discount: ₹{product.discountPrice.toFixed(2)}
+                                    Discount: ₹
+                                    {product.discountPrice.toFixed(2)}
                                   </p>
                                 )}
                               </div>
                             </TableCell>
                             <TableCell>
                               {product.stockQuantity === 0 ? (
-                                <Badge variant="destructive">Out of Stock</Badge>
+                                <Badge variant="destructive">
+                                  Out of Stock
+                                </Badge>
                               ) : product.stockQuantity < 10 ? (
-                                <Badge variant="outline">Low: {product.stockQuantity}</Badge>
+                                <Badge variant="outline">
+                                  Low: {product.stockQuantity}
+                                </Badge>
                               ) : (
-                                <Badge variant="outline">{product.stockQuantity}</Badge>
+                                <Badge variant="outline">
+                                  {product.stockQuantity}
+                                </Badge>
                               )}
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-1">
                                 {product.naturallyGrown && (
-                                  <Badge variant="secondary" className="text-xs">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     <Leaf className="h-3 w-3 mr-1" />
                                     Natural
                                   </Badge>
                                 )}
                                 {product.chemicalFree && (
-                                  <Badge variant="secondary" className="text-xs">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     <Shield className="h-3 w-3 mr-1" />
                                     Chemical-Free
                                   </Badge>
                                 )}
                                 {product.premiumQuality && (
-                                  <Badge variant="secondary" className="text-xs">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
                                     <Crown className="h-3 w-3 mr-1" />
                                     Premium
                                   </Badge>
@@ -770,7 +892,12 @@ export default function EnhancedAdminProducts() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => handleToggleFeatured(product.id, Boolean(product.featured))}
+                                  onClick={() =>
+                                    handleToggleFeatured(
+                                      product.id,
+                                      Boolean(product.featured)
+                                    )
+                                  }
                                 >
                                   {product.featured ? (
                                     <StarOff className="h-4 w-4 text-amber-500" />
@@ -818,7 +945,12 @@ export default function EnhancedAdminProducts() {
                   {/* Pagination */}
                   <div className="flex items-center justify-between mt-4">
                     <div className="text-sm text-muted-foreground">
-                      Showing {(currentPage - 1) * productsPerPage + 1} to {Math.min(currentPage * productsPerPage, products.length * totalPages)} of {products.length * totalPages} products
+                      Showing {(currentPage - 1) * productsPerPage + 1} to{" "}
+                      {Math.min(
+                        currentPage * productsPerPage,
+                        products.length * totalPages
+                      )}{" "}
+                      of {products.length * totalPages} products
                     </div>
                     {totalPages > 1 && (
                       <div className="flex items-center space-x-2">
@@ -852,28 +984,33 @@ export default function EnhancedAdminProducts() {
           </Card>
 
           {/* Create/Edit Product Dialog */}
-          <Dialog open={isCreateDialogOpen || isEditDialogOpen} onOpenChange={(open) => {
-            if (!open) {
-              setIsCreateDialogOpen(false);
-              setIsEditDialogOpen(false);
-              setProductToEdit(null);
-            }
-          }}>
+          <Dialog
+            open={isCreateDialogOpen || isEditDialogOpen}
+            onOpenChange={(open) => {
+              if (!open) {
+                setIsCreateDialogOpen(false);
+                setIsEditDialogOpen(false);
+                setProductToEdit(null);
+              }
+            }}
+          >
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {productToEdit ? 'Edit Product' : 'Create New Product'}
+                  {productToEdit ? "Edit Product" : "Create New Product"}
                 </DialogTitle>
                 <DialogDescription>
                   {productToEdit
-                    ? 'Update the product information below.'
-                    : 'Fill in the details to create a new product in your catalog.'
-                  }
+                    ? "Update the product information below."
+                    : "Fill in the details to create a new product in your catalog."}
                 </DialogDescription>
               </DialogHeader>
 
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   <Tabs defaultValue="basic" className="w-full">
                     <TabsList className="grid w-full grid-cols-5">
                       <TabsTrigger value="basic">Basic Info</TabsTrigger>
@@ -893,7 +1030,10 @@ export default function EnhancedAdminProducts() {
                             <FormItem>
                               <FormLabel>Product Name</FormLabel>
                               <FormControl>
-                                <Input placeholder="e.g., Premium Tea Leaves" {...field} />
+                                <Input
+                                  placeholder="e.g., Premium Tea Leaves"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -911,7 +1051,7 @@ export default function EnhancedAdminProducts() {
                                   field.onChange(value);
                                   handleCategoryChange(value);
                                 }}
-                                defaultValue={field.value}
+                                value={field.value}
                               >
                                 <FormControl>
                                   <SelectTrigger>
@@ -920,7 +1060,10 @@ export default function EnhancedAdminProducts() {
                                 </FormControl>
                                 <SelectContent>
                                   {mainCategories.map((category) => (
-                                    <SelectItem key={category.id} value={category.name}>
+                                    <SelectItem
+                                      key={category.id}
+                                      value={category.name}
+                                    >
                                       {category.name}
                                     </SelectItem>
                                   ))}
@@ -939,28 +1082,34 @@ export default function EnhancedAdminProducts() {
                               <FormLabel>Subcategory (Optional)</FormLabel>
                               <Select
                                 onValueChange={field.onChange}
-                                defaultValue={field.value}
+                                value={field.value}
                                 disabled={subcategories.length === 0}
                               >
                                 <FormControl>
                                   <SelectTrigger>
-                                    <SelectValue placeholder={
-                                      subcategories.length === 0
-                                        ? "Select a category first"
-                                        : "Select a subcategory"
-                                    } />
+                                    <SelectValue
+                                      placeholder={
+                                        subcategories.length === 0
+                                          ? "Select a category first"
+                                          : "Select a subcategory"
+                                      }
+                                    />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   {subcategories.map((subcategory) => (
-                                    <SelectItem key={subcategory.id} value={subcategory.name}>
+                                    <SelectItem
+                                      key={subcategory.id}
+                                      value={subcategory.name}
+                                    >
                                       {subcategory.name}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
                               <FormDescription>
-                                Choose a specific subcategory to help customers find your product more easily
+                                Choose a specific subcategory to help customers
+                                find your product more easily
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -975,10 +1124,14 @@ export default function EnhancedAdminProducts() {
                           <FormItem>
                             <FormLabel>Short Description</FormLabel>
                             <FormControl>
-                              <Input placeholder="Brief product description for listings" {...field} />
+                              <Input
+                                placeholder="Brief product description for listings"
+                                {...field}
+                              />
                             </FormControl>
                             <FormDescription>
-                              This appears in product listings and search results (max 100 chars recommended)
+                              This appears in product listings and search
+                              results (max 100 chars recommended)
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1012,7 +1165,12 @@ export default function EnhancedAdminProducts() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Farmer/Producer</FormLabel>
-                            <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                            <Select
+                              onValueChange={(value) =>
+                                field.onChange(parseInt(value))
+                              }
+                              value={field.value?.toString()}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select a farmer" />
@@ -1020,8 +1178,12 @@ export default function EnhancedAdminProducts() {
                               </FormControl>
                               <SelectContent>
                                 {farmers.map((farmer) => (
-                                  <SelectItem key={farmer.id} value={farmer.id.toString()}>
-                                    {farmer.name} {farmer.location && `- ${farmer.location}`}
+                                  <SelectItem
+                                    key={farmer.id}
+                                    value={farmer.id.toString()}
+                                  >
+                                    {farmer.name}{" "}
+                                    {farmer.location && `- ${farmer.location}`}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -1047,7 +1209,11 @@ export default function EnhancedAdminProducts() {
                                   step="0.01"
                                   placeholder="0.00"
                                   {...field}
-                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      parseFloat(e.target.value) || 0
+                                    )
+                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -1067,10 +1233,16 @@ export default function EnhancedAdminProducts() {
                                   step="0.01"
                                   placeholder="Optional discount price"
                                   {...field}
-                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      parseFloat(e.target.value) || undefined
+                                    )
+                                  }
                                 />
                               </FormControl>
-                              <FormDescription>Leave empty if no discount</FormDescription>
+                              <FormDescription>
+                                Leave empty if no discount
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1089,7 +1261,11 @@ export default function EnhancedAdminProducts() {
                                   type="number"
                                   placeholder="100"
                                   {...field}
-                                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      parseInt(e.target.value) || 0
+                                    )
+                                  }
                                 />
                               </FormControl>
                               <FormMessage />
@@ -1104,9 +1280,14 @@ export default function EnhancedAdminProducts() {
                             <FormItem>
                               <FormLabel>SKU/Product Code</FormLabel>
                               <FormControl>
-                                <Input placeholder="Optional SKU or product code" {...field} />
+                                <Input
+                                  placeholder="Optional SKU or product code"
+                                  {...field}
+                                />
                               </FormControl>
-                              <FormDescription>For inventory management</FormDescription>
+                              <FormDescription>
+                                For inventory management
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1117,7 +1298,9 @@ export default function EnhancedAdminProducts() {
                     {/* Product Attributes Tab */}
                     <TabsContent value="attributes" className="space-y-4">
                       <div className="space-y-4">
-                        <h4 className="text-sm font-medium">Product Qualities</h4>
+                        <h4 className="text-sm font-medium">
+                          Product Qualities
+                        </h4>
 
                         <div className="grid grid-cols-1 gap-4">
                           <FormField
@@ -1134,7 +1317,8 @@ export default function EnhancedAdminProducts() {
                                 <div className="space-y-1 leading-none">
                                   <FormLabel>Naturally Grown</FormLabel>
                                   <FormDescription>
-                                    Product is grown using natural farming methods
+                                    Product is grown using natural farming
+                                    methods
                                   </FormDescription>
                                 </div>
                               </FormItem>
@@ -1155,7 +1339,8 @@ export default function EnhancedAdminProducts() {
                                 <div className="space-y-1 leading-none">
                                   <FormLabel>Chemical-Free</FormLabel>
                                   <FormDescription>
-                                    No chemicals or pesticides used in production
+                                    No chemicals or pesticides used in
+                                    production
                                   </FormDescription>
                                 </div>
                               </FormItem>
@@ -1176,7 +1361,8 @@ export default function EnhancedAdminProducts() {
                                 <div className="space-y-1 leading-none">
                                   <FormLabel>Premium Quality</FormLabel>
                                   <FormDescription>
-                                    High-quality product with superior characteristics
+                                    High-quality product with superior
+                                    characteristics
                                   </FormDescription>
                                 </div>
                               </FormItem>
@@ -1197,7 +1383,8 @@ export default function EnhancedAdminProducts() {
                                 <div className="space-y-1 leading-none">
                                   <FormLabel>Featured Product</FormLabel>
                                   <FormDescription>
-                                    Display this product prominently on the homepage
+                                    Display this product prominently on the
+                                    homepage
                                   </FormDescription>
                                 </div>
                               </FormItem>
@@ -1244,10 +1431,14 @@ export default function EnhancedAdminProducts() {
                           <FormItem>
                             <FormLabel>Video URL</FormLabel>
                             <FormControl>
-                              <Input placeholder="https://youtube.com/watch?v=..." {...field} />
+                              <Input
+                                placeholder="https://youtube.com/watch?v=..."
+                                {...field}
+                              />
                             </FormControl>
                             <FormDescription>
-                              Optional video showcasing the product or farm story
+                              Optional video showcasing the product or farm
+                              story
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1267,9 +1458,14 @@ export default function EnhancedAdminProducts() {
                             <FormItem>
                               <FormLabel>Meta Title</FormLabel>
                               <FormControl>
-                                <Input placeholder="SEO title for search engines" {...field} />
+                                <Input
+                                  placeholder="SEO title for search engines"
+                                  {...field}
+                                />
                               </FormControl>
-                              <FormDescription>Leave empty to use product name</FormDescription>
+                              <FormDescription>
+                                Leave empty to use product name
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1288,7 +1484,9 @@ export default function EnhancedAdminProducts() {
                                   {...field}
                                 />
                               </FormControl>
-                              <FormDescription>Leave empty to use short description</FormDescription>
+                              <FormDescription>
+                                Leave empty to use short description
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1301,9 +1499,14 @@ export default function EnhancedAdminProducts() {
                             <FormItem>
                               <FormLabel>URL Slug</FormLabel>
                               <FormControl>
-                                <Input placeholder="product-url-slug" {...field} />
+                                <Input
+                                  placeholder="product-url-slug"
+                                  {...field}
+                                />
                               </FormControl>
-                              <FormDescription>URL-friendly version of product name</FormDescription>
+                              <FormDescription>
+                                URL-friendly version of product name
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1311,7 +1514,9 @@ export default function EnhancedAdminProducts() {
                       </div>
 
                       <div className="space-y-4">
-                        <h4 className="text-sm font-medium">Social Sharing Options</h4>
+                        <h4 className="text-sm font-medium">
+                          Social Sharing Options
+                        </h4>
 
                         <div className="grid grid-cols-2 gap-4">
                           <FormField
@@ -1391,15 +1596,19 @@ export default function EnhancedAdminProducts() {
                   </Tabs>
 
                   <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => {
-                      setIsCreateDialogOpen(false);
-                      setIsEditDialogOpen(false);
-                      setProductToEdit(null);
-                    }}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setIsCreateDialogOpen(false);
+                        setIsEditDialogOpen(false);
+                        setProductToEdit(null);
+                      }}
+                    >
                       Cancel
                     </Button>
                     <Button type="submit">
-                      {productToEdit ? 'Update Product' : 'Create Product'}
+                      {productToEdit ? "Update Product" : "Create Product"}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -1408,10 +1617,15 @@ export default function EnhancedAdminProducts() {
           </Dialog>
 
           {/* Image Gallery Dialog */}
-          <Dialog open={isImageGalleryOpen} onOpenChange={setIsImageGalleryOpen}>
+          <Dialog
+            open={isImageGalleryOpen}
+            onOpenChange={setIsImageGalleryOpen}
+          >
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Product Images - {productToEdit?.name}</DialogTitle>
+                <DialogTitle>
+                  Product Images - {productToEdit?.name}
+                </DialogTitle>
                 <DialogDescription>
                   View all images associated with this product
                 </DialogDescription>
@@ -1426,34 +1640,44 @@ export default function EnhancedAdminProducts() {
                       className="w-full max-w-md h-64 object-cover rounded-lg border"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = `${import.meta.env.VITE_API_URL}/api/images/placeholder.png`;
+                        target.src = `${
+                          import.meta.env.VITE_API_URL
+                        }/api/images/placeholder.png`;
                       }}
                     />
                   </div>
-                  {productToEdit.imageUrls && productToEdit.imageUrls.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Additional Images ({productToEdit.imageUrls.length})</h4>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {productToEdit.imageUrls.map((imageUrl, index) => (
-                          <div key={index} className="relative">
-                            <img
-                              src={imageUrl}
-                              alt={`${productToEdit.name} - Image ${index + 1}`}
-                              className="w-full h-32 object-cover rounded-lg border"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = `${import.meta.env.VITE_API_URL}/api/images/placeholder.png`;
-                              }}
-                            />
-                            <div className="absolute top-1 right-1 bg-black bg-opacity-50 text-white text-xs rounded px-1">
-                              {index + 1}
+                  {productToEdit.imageUrls &&
+                    productToEdit.imageUrls.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">
+                          Additional Images ({productToEdit.imageUrls.length})
+                        </h4>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          {productToEdit.imageUrls.map((imageUrl, index) => (
+                            <div key={index} className="relative">
+                              <img
+                                src={imageUrl}
+                                alt={`${productToEdit.name} - Image ${
+                                  index + 1
+                                }`}
+                                className="w-full h-32 object-cover rounded-lg border"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `${
+                                    import.meta.env.VITE_API_URL
+                                  }/api/images/placeholder.png`;
+                                }}
+                              />
+                              <div className="absolute top-1 right-1 bg-black bg-opacity-50 text-white text-xs rounded px-1">
+                                {index + 1}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {(!productToEdit.imageUrls || productToEdit.imageUrls.length === 0) && (
+                    )}
+                  {(!productToEdit.imageUrls ||
+                    productToEdit.imageUrls.length === 0) && (
                     <div className="text-center py-8 text-muted-foreground">
                       No additional images available
                     </div>
@@ -1464,21 +1688,30 @@ export default function EnhancedAdminProducts() {
           </Dialog>
 
           {/* Delete Confirmation Dialog */}
-          <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <Dialog
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+          >
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Delete Product</DialogTitle>
                 <DialogDescription>
-                  Are you sure you want to delete "{productToDelete?.name}"? This action cannot be undone.
+                  Are you sure you want to delete "{productToDelete?.name}"?
+                  This action cannot be undone.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDeleteDialogOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={() => productToDelete && handleDeleteProduct(productToDelete.id)}
+                  onClick={() =>
+                    productToDelete && handleDeleteProduct(productToDelete.id)
+                  }
                 >
                   Delete Product
                 </Button>

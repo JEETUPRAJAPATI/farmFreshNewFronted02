@@ -17,7 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: (navigate?: (path: string) => void) => void;
   updateProfile: (name: string) => Promise<boolean>;
 }
 
@@ -141,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = (navigate?: (path: string) => void) => {
     // Clear auth data from localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -157,6 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       title: 'Logged out',
       description: 'You have been logged out successfully.'
     });
+
+    // Navigate to login page if navigate function is provided
+    if (navigate) {
+      navigate('/login');
+    }
   };
 
   const updateProfile = async (name: string): Promise<boolean> => {

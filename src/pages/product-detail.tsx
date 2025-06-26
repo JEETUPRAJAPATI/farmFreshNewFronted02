@@ -263,7 +263,7 @@ export default function ProductDetail() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-cream text-lg max-w-3xl mx-auto text-shadow"
+            className="text-white text-lg max-w-3xl mx-auto text-shadow"
           >
             Our {product?.name || "product"} is meticulously grown using traditional methods that have been passed down through generations.
             Each {product?.category ? product.category.toLowerCase() : "product"} is carefully harvested at the peak of ripeness to ensure maximum flavor and nutrition.

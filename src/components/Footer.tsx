@@ -1,14 +1,57 @@
-import { Link } from "wouter";
-import { useState } from "react";
+import { Link, useLocation } from "wouter";
+import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useSiteSettings } from "@/context/SiteContext";
-import { Facebook, Instagram, Twitter, Linkedin, Youtube, Globe } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Youtube,
+  Globe,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { cn, debounce } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useAnimations } from "@/hooks/use-animations";
+
+const useSearchParams = () => {
+  const [location, navigate] = useLocation();
+  const params = new URLSearchParams(location.split("?")[1] || "");
+
+  const updateURL = (newParams: Record<string, string | null>) => {
+    const currentParams = new URLSearchParams(location.split("?")[1] || "");
+
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "all") {
+        currentParams.delete(key);
+      } else {
+        currentParams.set(key, value);
+      }
+    });
+
+    const newURL = currentParams.toString()
+      ? `/products?${currentParams.toString()}`
+      : "/products";
+    navigate(newURL);
+  };
+
+  return { params, updateURL };
+};
 
 export default function Footer() {
+  const [location] = useLocation();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { settings } = useSiteSettings();
+  const { updateURL } = useSearchParams();
+
+  const { params: searchParams } = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
+  // State for categories
+  const [mainCategories, setMainCategories] = useState<any[]>([]);
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,16 +76,19 @@ export default function Footer() {
 
     setIsSubmitting(true);
     try {
-      await apiRequest(`${import.meta.env.VITE_API_URL}/api/newsletter/subscribe`, {
-        method: "POST",
-        body: JSON.stringify({
-          email,
-          agreedToTerms: true,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      await apiRequest(
+        `${import.meta.env.VITE_API_URL}/api/newsletter/subscribe`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email,
+            agreedToTerms: true,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       toast({
         title: "Subscription successful!",
@@ -53,13 +99,49 @@ export default function Footer() {
     } catch (error) {
       toast({
         title: "Subscription failed",
-        description: error instanceof Error ? error.message : "Please try again later",
+        description:
+          error instanceof Error ? error.message : "Please try again later",
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Fetch main categories
+  const fetchMainCategories = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/categories/main`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setMainCategories(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch main categories:", error);
+    }
+  };
+
+  // Handle category change
+ // Update the handleCategoryChange function in your Footer component
+const handleCategoryChange = (categoryName: string | null) => {
+  window.scrollTo(0, 0);
+  updateURL({
+    category: categoryName,
+    page: "1", // Reset to first page when changing category
+    sortBy: "id", // Add default sortBy
+    sortOrder: "desc" // Add default sortOrder
+  });
+};
+const handleClickUp = ()=>{
+  window.scrollTo(0, 0);
+}
+  // Load categories on component mount
+  useEffect(() => {
+    fetchMainCategories();
+  }, []);
+
   return (
     <footer className="bg-[#283618] text-white pt-16 pb-8 mt-16 w-full">
       <div className="container mx-auto px-4 lg:px-8">
@@ -148,72 +230,135 @@ export default function Footer() {
 
           {/* Products Column */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6 border-b border-white/20 pb-2">Products</h4>
+            <h4 className="text-white font-bold text-lg mb-6 border-b border-white/20 pb-2">
+              Products
+            </h4>
             <ul className="space-y-4">
               <li>
-                <Link href="/products?category=Coffee%20%26%20Tea" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
-                  Coffee & Tea
-                </Link>
+                <button
+                  onClick={() => handleCategoryChange(null)}
+                  className={cn(
+                    "text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center",
+                    !categoryParam && "text-[#DDA15E] font-medium"
+                  )}
+                >
+                  All Products
+                </button>
               </li>
-              <li>
-                <Link href="/products?category=Spices" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
-                  Spices
-                </Link>
-              </li>
-              <li>
-                <Link href="/products?category=Grains" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
-                  Grains & Rice
-                </Link>
-              </li>
-              <li>
-                <Link href="/products?category=Others" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
-                  Superfoods
-                </Link>
-              </li>
-              <li>
-                <Link href="/products" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
-                  Gift Boxes
-                </Link>
-              </li>
+              {mainCategories.map((category) => (
+                <li key={category.id}>
+                  <button
+                    onClick={() => handleCategoryChange(category.name)}
+                    className={cn(
+                      "text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center",
+                      categoryParam === category.name && "text-[#DDA15E] font-medium"
+                    )}
+                  >
+                    {category.name}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* About Us Column */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6 border-b border-white/20 pb-2">About Us</h4>
+            <h4 className="text-white font-bold text-lg mb-6 border-b border-white/20 pb-2">
+              About Us
+            </h4>
             <ul className="space-y-4">
-              <li>
-                <Link href="/#story" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+              <li >
+                <Link
+                  href="/#story"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   Our Story
                 </Link>
               </li>
               <li>
-                <Link href="/farmers" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                <Link
+                  href="/farmers"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   Meet the Farmers
                 </Link>
               </li>
               <li>
-                <Link href="/#process" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                <Link
+                  href="/#process"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   Sustainability
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                <a
+                  href="#"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   Blog
                 </a>
               </li>
               <li>
-                <a href="#" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                <a
+                  href="#"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   Press
                 </a>
               </li>
@@ -222,35 +367,102 @@ export default function Footer() {
 
           {/* Customer Care Column */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6 border-b border-white/20 pb-2">Customer Care</h4>
+            <h4 className="text-white font-bold text-lg mb-6 border-b border-white/20 pb-2">
+              Customer Care
+            </h4>
             <ul className="space-y-4">
               <li>
-                <Link href="/contact" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                <Link
+                  href="/contact"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/faqs" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                <Link
+                  href="/faqs"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   FAQs
                 </Link>
               </li>
               <li>
-                <Link href="/shipping-returns" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                <Link
+                  href="/shipping-returns"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   Shipping & Returns
                 </Link>
               </li>
               <li>
-                <Link href="/track-order" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                <Link
+                  href="/track-order"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   Track Your Order
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-[#DDA15E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                <Link
+                  href="/privacy-policy"
+                  onClick={handleClickUp}
+                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-2 text-[#DDA15E]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                  </svg>
                   Privacy Policy
                 </Link>
               </li>
@@ -261,9 +473,17 @@ export default function Footer() {
         {/* Newsletter */}
         <div className="border-t border-white/20 pt-8 pb-8">
           <div className="max-w-xl mx-auto text-center">
-            <h4 className="text-white font-bold text-xl mb-4">Join Our Newsletter</h4>
-            <p className="text-white/80 mb-6">Get updates on new arrivals, seasonal harvest news, and exclusive offers.</p>
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto">
+            <h4 className="text-white font-bold text-xl mb-4">
+              Join Our Newsletter
+            </h4>
+            <p className="text-white/80 mb-6">
+              Get updates on new arrivals, seasonal harvest news, and exclusive
+              offers.
+            </p>
+            <form
+              onSubmit={handleNewsletterSubmit}
+              className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto"
+            >
               <input
                 type="email"
                 placeholder="Your email address"
@@ -283,12 +503,14 @@ export default function Footer() {
           </div>
         </div>
 
-
-
         {/* Copyright */}
         <div className="border-t border-white/20 pt-8 text-center">
-          <p className="text-white/80 text-sm mb-2">© {new Date().getFullYear()} HarvestDirect. All rights reserved.</p>
-          <p className="text-white/70 text-sm">Made with ❤️ for farmers and natural food.</p>
+          <p className="text-white/80 text-sm mb-2">
+            © {new Date().getFullYear()} HarvestDirect. All rights reserved.
+          </p>
+          <p className="text-white/70 text-sm">
+            Made with ❤️ for farmers and natural food.
+          </p>
         </div>
       </div>
     </footer>

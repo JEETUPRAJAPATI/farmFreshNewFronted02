@@ -47,6 +47,7 @@ import { SiteProvider } from "@/context/SiteContext";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import Layout from "@/components/Layout";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
@@ -71,7 +72,7 @@ function App() {
               <Route path="/admin/category-management" component={AdminCategoryManagement} />
 
               <Route path="/admin/settings" component={AdminSettings} />
-              
+
               {/* Main Store Routes - Wrapped in Layout */}
               <Route>
                 {() => (
@@ -94,13 +95,13 @@ function App() {
                         <Route path="/order-history" component={OrderHistory} />
                         <Route path="/payment" component={Payment} />
                         <Route path="/payment-success" component={PaymentSuccess} />
-                        
+
                         {/* Customer Care Pages */}
                         <Route path="/faqs" component={FAQs} />
                         <Route path="/shipping-returns" component={ShippingReturns} />
                         <Route path="/track-order" component={TrackOrder} />
                         <Route path="/privacy-policy" component={PrivacyPolicy} />
-                        
+
                         {/* 404 Route */}
                         <Route component={NotFound} />
                       </Switch>

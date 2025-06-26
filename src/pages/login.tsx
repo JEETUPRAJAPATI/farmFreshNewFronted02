@@ -45,7 +45,7 @@ export default function Login() {
   };
 
   return (
-    <div className="container mx-auto py-10 flex justify-center">
+    <div className="container mx-auto py-10 flex justify-center pt-20">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
@@ -96,8 +96,8 @@ export default function Login() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center">
-            <a 
-              href="/forgot-password" 
+            <a
+              href="/forgot-password"
               className="text-primary hover:underline"
             >
               Forgot your password?
@@ -105,8 +105,8 @@ export default function Login() {
           </div>
           <div className="text-sm text-center">
             Don't have an account?{' '}
-            <a 
-              href="/register" 
+            <a
+              href="/register"
               className="text-primary hover:underline"
             >
               Register

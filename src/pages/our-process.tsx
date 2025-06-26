@@ -17,12 +17,12 @@ export default function OurProcess() {
   return (
     <>
       {/* Hero Section */}
-      <ParallaxSection 
+      <ParallaxSection
         backgroundUrl="https://images.pexels.com/photos/5913367/pexels-photo-5913367.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
         className="pt-48 pb-24"
       >
         <div className="container mx-auto px-4 text-center">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -30,7 +30,7 @@ export default function OurProcess() {
           >
             Our Farm-to-Table Process
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -50,12 +50,12 @@ export default function OurProcess() {
               Unlike conventional supply chains with numerous middlemen, our process creates a direct connection between farmers and consumers. This ensures you receive fresher products while farmers earn fair compensation for their dedication to quality.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center scroll-animation">
             <div>
-              <img 
-                src="https://images.pexels.com/photos/5913391/pexels-photo-5913391.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260" 
-                alt="Farmer inspecting crop quality" 
+              <img
+                src="https://images.pexels.com/photos/5913391/pexels-photo-5913391.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
+                alt="Farmer inspecting crop quality"
                 className="rounded-lg shadow-xl w-full h-auto object-cover aspect-[4/3]"
               />
             </div>
@@ -81,7 +81,7 @@ export default function OurProcess() {
               From careful partner selection to your doorstep, here's how we ensure quality at every stage.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16 scroll-animation">
             {/* Step 1 */}
             <div className="flex">
@@ -117,7 +117,7 @@ export default function OurProcess() {
                 </ul>
               </div>
             </div>
-            
+
             {/* Step 2 */}
             <div className="flex">
               <div className="mr-6">
@@ -152,7 +152,7 @@ export default function OurProcess() {
                 </ul>
               </div>
             </div>
-            
+
             {/* Step 3 */}
             <div className="flex">
               <div className="mr-6">
@@ -187,7 +187,7 @@ export default function OurProcess() {
                 </ul>
               </div>
             </div>
-            
+
             {/* Step 4 */}
             <div className="flex">
               <div className="mr-6">
@@ -224,7 +224,7 @@ export default function OurProcess() {
             </div>
           </div>
         </div>
-        
+
         {/* Background decoration */}
         <div className="absolute inset-0 z-0 opacity-5">
           <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
@@ -245,7 +245,7 @@ export default function OurProcess() {
               We're committed to making our operations environmentally responsible at every step.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 scroll-animation">
             <div className="bg-background p-6 rounded-lg shadow-md">
               <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center mb-4">
@@ -256,7 +256,7 @@ export default function OurProcess() {
                 We partner with farmers who practice regenerative methods that build soil health and sequester carbon, creating a positive environmental impact.
               </p>
             </div>
-            
+
             <div className="bg-background p-6 rounded-lg shadow-md">
               <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center mb-4">
                 <Package className="text-secondary" />
@@ -266,7 +266,7 @@ export default function OurProcess() {
                 Our packaging is designed to minimize waste with recyclable, compostable, or biodegradable materials wherever possible.
               </p>
             </div>
-            
+
             <div className="bg-background p-6 rounded-lg shadow-md">
               <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center mb-4">
                 <Truck className="text-secondary" />
@@ -276,7 +276,7 @@ export default function OurProcess() {
                 We measure and offset the carbon footprint of our shipping operations by investing in verified environmental projects.
               </p>
             </div>
-            
+
             <div className="bg-background p-6 rounded-lg shadow-md">
               <div className="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center mb-4">
                 <Clock className="text-secondary" />
@@ -289,14 +289,14 @@ export default function OurProcess() {
           </div>
         </div>
       </section>
-      
+
       {/* Call to Action */}
-      <section className="py-16 bg-forest text-white">
+      <section className="py-16 bg-forest text-black">
         <div className="container mx-auto px-4 text-center">
           <h2 className="font-heading text-3xl md:text-4xl font-bold mb-6">
             Experience Our Process Firsthand
           </h2>
-          <p className="text-white/80 text-lg max-w-2xl mx-auto mb-8">
+          <p className="text-black/80 text-lg max-w-2xl mx-auto mb-8">
             The best way to understand the difference our process makes is to taste it for yourself. Browse our collection of farm-direct products today.
           </p>
           <Link href="/products">

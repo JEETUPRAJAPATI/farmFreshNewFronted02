@@ -39,7 +39,7 @@ export default function ImageUpload({
       });
       return;
     }
-
+    console.log('existingImages', existingImages);
     // Validate file types
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     const invalidFiles = fileArray.filter(file => !validTypes.includes(file.type));
@@ -242,13 +242,14 @@ export default function ImageUpload({
             {existingImages.map((imagePath, index) => (
               <div key={index} className="relative group">
                 <img
-                  src={imagePath}
+                  src={`${imagePath}`}
                   alt={`Product image ${index + 1}`}
                   className="w-full h-24 object-cover rounded-lg border"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/uploads/products/placeholder.webp';
+                    (e.target as HTMLImageElement).src = `${import.meta.env.VITE_API_URL}/uploads/products/placeholder.webp`;
                   }}
                 />
+
                 {onImageRemove && (
                   <Button
                     type="button"

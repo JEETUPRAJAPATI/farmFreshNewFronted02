@@ -46,12 +46,12 @@ export default function Register() {
     setError(null);
     const success = await registerUser(data.name, data.email, data.password);
     if (success) {
-      navigate('/login');
+      navigate('/');
     }
   };
 
   return (
-    <div className="container mx-auto py-10 flex justify-center">
+    <div className="container mx-auto py-10 flex justify-center pt-20">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Create an Account</CardTitle>
@@ -144,8 +144,8 @@ export default function Register() {
         <CardFooter className="flex justify-center">
           <div className="text-sm text-center">
             Already have an account?{' '}
-            <a 
-              href="/login" 
+            <a
+              href="/login"
               className="text-primary hover:underline"
             >
               Login

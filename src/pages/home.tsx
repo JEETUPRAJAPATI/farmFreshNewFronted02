@@ -50,7 +50,10 @@ export default function Home() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<number | null>(
     null
   );
-  window.scrollTo(0, 0);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [product, setProduct] = useState([]);
   // Get products and farmers data
   const { data: productsResponse } = useQuery({

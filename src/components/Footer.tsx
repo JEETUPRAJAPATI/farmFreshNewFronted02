@@ -125,13 +125,15 @@ export default function Footer() {
 
   // Handle category change
  // Update the handleCategoryChange function in your Footer component
+// In Footer.tsx
 const handleCategoryChange = (categoryName: string | null) => {
-  window.scrollTo(0, 0);
+  // Update URL with all necessary default parameters
   updateURL({
     category: categoryName,
-    page: "1", // Reset to first page when changing category
-    sortBy: "id", // Add default sortBy
-    sortOrder: "desc" // Add default sortOrder
+    subcategory: null, // Reset subcategory when changing main category
+    page: "1", // Reset to first page
+    sortBy: "id", // Default sort
+    sortOrder: "desc" // Default order
   });
 };
 const handleClickUp = ()=>{
@@ -246,7 +248,7 @@ const handleClickUp = ()=>{
                 </button>
               </li>
               {mainCategories.map((category) => (
-                <li key={category.id}>
+                <li key={category.id}  onClick={handleClickUp}>
                   <button
                     onClick={() => handleCategoryChange(category.name)}
                     className={cn(

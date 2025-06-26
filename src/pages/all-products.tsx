@@ -57,6 +57,7 @@ interface PaginatedProductsResponse {
 }
 
 export default function AllProducts() {
+  window.scrollTo(0, 0);
   const { params: searchParams, updateURL } = useSearchParams();
   const categoryParam = searchParams.get("category");
   const subcategoryParam = searchParams.get("subcategory");
@@ -68,9 +69,9 @@ export default function AllProducts() {
   const pageParam = searchParams.get("page");
 
   // Ensure page always starts at top on any navigation
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []); // On component mount
+
+  
+
 
   // State for filters and pagination - initialize from URL parameters
   const [searchQuery, setSearchQuery] = useState(searchParam || "");

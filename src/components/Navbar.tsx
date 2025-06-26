@@ -5,13 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useSiteSettings } from "@/context/SiteContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Search,
-  ShoppingBasket,
-  Menu,
-  X,
-  User
-} from "lucide-react";
+import { Search, ShoppingBasket, Menu, X, User } from "lucide-react";
 
 export default function Navbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -23,7 +17,10 @@ export default function Navbar() {
   const { settings } = useSiteSettings();
   const [location, navigate] = useLocation();
 
-  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const totalItems = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
 
   // Navbar scroll effect
   useEffect(() => {
@@ -66,18 +63,20 @@ export default function Navbar() {
   };
 
   const navLinks = [
+    { href: "/", label: "Home" },
     { href: "/our-story", label: "Our Story" },
     { href: "/products", label: "Products" },
     { href: "/farmers", label: "Our Farmers" },
     { href: "/our-process", label: "Our Process" },
-    { href: "/contact", label: "Contact" }
+    { href: "/contact", label: "Contact" },
   ];
 
   return (
     <header>
       <nav
-        className={`fixed w-full z-50 transition-all duration-300 bg-background/90 backdrop-blur-sm ${scrolled ? "py-2 shadow-md" : "py-3 shadow-sm"
-          }`}
+        className={`fixed w-full z-50 transition-all duration-300 bg-background/90 backdrop-blur-sm ${
+          scrolled ? "py-2 shadow-md" : "py-3 shadow-sm"
+        }`}
       >
         <div className="container mx-auto px-4 lg:px-8 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-3">
@@ -120,7 +119,10 @@ export default function Navbar() {
             <div className="hidden lg:flex items-center space-x-4">
               {isAuthenticated ? (
                 <>
-                  <Link href="/account" className="text-forest hover:text-primary font-medium transition duration-200">
+                  <Link
+                    href="/account"
+                    className="text-forest hover:text-primary font-medium transition duration-200"
+                  >
                     My Account
                   </Link>
                   <Button
@@ -133,10 +135,16 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="text-forest hover:text-primary font-medium transition duration-200">
+                  <Link
+                    href="/login"
+                    className="text-forest hover:text-primary font-medium transition duration-200"
+                  >
                     Login
                   </Link>
-                  <Link href="/register" className="text-forest hover:text-primary font-medium transition duration-200">
+                  <Link
+                    href="/register"
+                    className="text-forest hover:text-primary font-medium transition duration-200"
+                  >
                     Register
                   </Link>
                 </>
@@ -163,7 +171,11 @@ export default function Navbar() {
               onClick={toggleMobileMenu}
               className="lg:hidden text-forest hover:text-primary hover:bg-transparent"
             >
-              {showMobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {showMobileMenu ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>

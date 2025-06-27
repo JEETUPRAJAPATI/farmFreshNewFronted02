@@ -236,7 +236,7 @@ export default function Home() {
               </p>
 
               <div className="flex flex-wrap gap-4">
-                <Link href="#products">
+                <Link href="/products">
                   <Button
                     size="lg"
                     className="bg-secondary hover:bg-secondary/90 text-white font-semibold px-8 py-6 rounded-md transition duration-300"
@@ -450,7 +450,6 @@ export default function Home() {
                 </Button>
               ))}
             </div>
-
             {/* Subcategory Selection */}
             {selectedCategory && subcategories.length > 0 && (
               <div className="flex flex-wrap justify-center gap-2">

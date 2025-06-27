@@ -15,10 +15,12 @@ import { Button } from "./ui/button";
 import { cn, debounce } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useAnimations } from "@/hooks/use-animations";
+import { useCategory } from "@/hooks/store";
 
 const useSearchParams = () => {
   const [location, navigate] = useLocation();
   const params = new URLSearchParams(location.split("?")[1] || "");
+
 
   const updateURL = (newParams: Record<string, string | null>) => {
     const currentParams = new URLSearchParams(location.split("?")[1] || "");
@@ -41,6 +43,7 @@ const useSearchParams = () => {
 };
 
 export default function Footer() {
+  const {setCategory}=useCategory()
   const [location] = useLocation();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,21 +127,29 @@ export default function Footer() {
   };
 
   // Handle category change
- // Update the handleCategoryChange function in your Footer component
-// In Footer.tsx
-const handleCategoryChange = (categoryName: string | null) => {
-  // Update URL with all necessary default parameters
-  updateURL({
-    category: categoryName,
-    subcategory: null, // Reset subcategory when changing main category
-    page: "1", // Reset to first page
-    sortBy: "id", // Default sort
-    sortOrder: "desc" // Default order
-  });
-};
-const handleClickUp = ()=>{
-  window.scrollTo(0, 0);
-}
+  // Update the handleCategoryChange function in your Footer component
+  // In Footer.tsx
+  // In Footer.tsx
+  const handleCategoryChange = (categoryName: string | null) => {
+    setCategory(categoryName);
+    updateURL({
+      category: categoryName,
+      subcategory: null,
+      page: "1",
+      sortBy: "id",
+      sortOrder: "desc", 
+      search: searchParams.get("search"),
+      minPrice: searchParams.get("minPrice"),
+      maxPrice: searchParams.get("maxPrice"),
+    });
+
+    // Scroll to top
+    window.scrollTo(0, 0);
+  };
+
+  const handleClickUp = () => {
+    window.scrollTo(0, 0);
+  };
   // Load categories on component mount
   useEffect(() => {
     fetchMainCategories();
@@ -248,14 +259,25 @@ const handleClickUp = ()=>{
                 </button>
               </li>
               {mainCategories.map((category) => (
-                <li key={category.id}  onClick={handleClickUp}>
+                <li key={category.id} onClick={handleClickUp}>
                   <button
                     onClick={() => handleCategoryChange(category.name)}
                     className={cn(
                       "text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center",
-                      categoryParam === category.name && "text-[#DDA15E] font-medium"
+                      categoryParam === category.name &&
+                        "text-[#DDA15E] font-medium"
                     )}
                   >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-2 text-[#DDA15E]"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M7 17l9.2-9.2M17 17V7H7"></path>
+                    </svg>
                     {category.name}
                   </button>
                 </li>
@@ -269,9 +291,9 @@ const handleClickUp = ()=>{
               About Us
             </h4>
             <ul className="space-y-4">
-              <li >
+              <li>
                 <Link
-                  href="/#story"
+                  href="/our-story"
                   onClick={handleClickUp}
                   className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
                 >
@@ -326,25 +348,7 @@ const handleClickUp = ()=>{
                   Sustainability
                 </Link>
               </li>
-              <li>
-                <a
-                  href="#"
-                  onClick={handleClickUp}
-                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 mr-2 text-[#DDA15E]"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
-                  </svg>
-                  Blog
-                </a>
-              </li>
+              
               <li>
                 <a
                   href="#"

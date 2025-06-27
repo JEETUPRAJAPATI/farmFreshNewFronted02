@@ -18,7 +18,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ProductCategory, Product } from "@shared/schema";
 import { useAnimations } from "@/hooks/use-animations";
 import { cn, debounce } from "@/lib/utils";
-import placeholder from "@/placeholder.svg"
+import { useSearchParams as queryfinder } from "react-router-dom";
+import { useCategory } from "@/hooks/store";
 // Custom hook for URL search params with navigation
 const useSearchParams = () => {
   const [location, navigate] = useLocation();
@@ -57,27 +58,27 @@ interface PaginatedProductsResponse {
 }
 
 export default function AllProducts() {
-  window.scrollTo(0, 0);
-  const { params: searchParams, updateURL } = useSearchParams();
-  const categoryParam = searchParams.get("category");
-  const subcategoryParam = searchParams.get("subcategory");
-  const searchParam = searchParams.get("search");
-  const minPriceParam = searchParams.get("minPrice");
-  const maxPriceParam = searchParams.get("maxPrice");
-  const sortByParam = searchParams.get("sortBy");
-  const sortOrderParam = searchParams.get("sortOrder");
-  const pageParam = searchParams.get("page");
-
+  const [searchParams] = queryfinder();
+  const { params: searchParamsfromwouter, updateURL } = useSearchParams();
+  const categoryParam = searchParamsfromwouter.get("category");
+  const subcategoryParam = searchParamsfromwouter.get("subcategory");
+  const searchParam = searchParamsfromwouter.get("search");
+  const minPriceParam = searchParamsfromwouter.get("minPrice");
+  const maxPriceParam = searchParamsfromwouter.get("maxPrice");
+  const sortByParam = searchParamsfromwouter.get("sortBy");
+  const sortOrderParam = searchParamsfromwouter.get("sortOrder");
+  const pageParam = searchParamsfromwouter.get("page");
+  const { category } = useCategory();
   // Ensure page always starts at top on any navigation
 
-  
-
+  window.scrollTo(0, 0);
 
   // State for filters and pagination - initialize from URL parameters
   const [searchQuery, setSearchQuery] = useState(searchParam || "");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     categoryParam || null
   );
+
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
     subcategoryParam || null
   );
@@ -125,7 +126,9 @@ export default function AllProducts() {
 
     return params.toString();
   };
-
+  useEffect(() => {
+    console.log(category);
+  }, [category]);
   // Get products with pagination
   const {
     data: productsResponse,
@@ -140,6 +143,7 @@ export default function AllProducts() {
       selectedSubcategory,
       priceRange,
       sortBy,
+      category,
       sortOrder,
     ],
     queryFn: async () => {
@@ -153,11 +157,10 @@ export default function AllProducts() {
       return response.json();
     },
   });
-  console.log("data", productsResponse);
 
   const allProducts = productsResponse?.products || [];
   const pagination = productsResponse?.pagination;
- 
+
   // Set up animations
   const { setupScrollAnimation } = useAnimations();
 
@@ -301,6 +304,9 @@ export default function AllProducts() {
   };
 
   // Handle category change to load subcategories
+  useEffect(() => {
+    handleCategoryChange(category);
+  }, [category]);
   const handleCategoryChange = (categoryName: string | null) => {
     // Immediate scroll to top
     window.scrollTo(0, 0);

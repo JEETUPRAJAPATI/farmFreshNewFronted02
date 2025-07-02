@@ -76,7 +76,7 @@ export default function AllProducts() {
   // State for filters and pagination - initialize from URL parameters
   const [searchQuery, setSearchQuery] = useState(searchParam || "");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    categoryParam || null
+    categoryParam || category  || null
   );
 
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
@@ -126,9 +126,7 @@ export default function AllProducts() {
 
     return params.toString();
   };
-  useEffect(() => {
-    console.log(category);
-  }, [category]);
+  
   // Get products with pagination
   const {
     data: productsResponse,
@@ -189,77 +187,125 @@ export default function AllProducts() {
   }, [searchParam]);
 
   // Sync all state with URL parameters when they change
+  // useEffect(() => {
+  //   let hasChanges = false;
+
+  //   // Update category if different from URL
+  //   if ((categoryParam || null) !== selectedCategory) {
+  //     setSelectedCategory(categoryParam || null);
+  //     hasChanges = true;
+
+  //     // If category changed, fetch its subcategories
+  //     if (categoryParam) {
+  //       const category = mainCategories.find(
+  //         (cat) => cat.name === categoryParam
+  //       );
+  //       if (category) {
+  //         fetchSubcategories(category.id);
+  //       }
+  //     } else {
+  //       setSubcategories([]);
+  //       setSelectedSubcategory(null);
+  //     }
+  //   }
+
+  //   // Update subcategory if different from URL
+  //   if ((subcategoryParam || null) !== selectedSubcategory) {
+  //     setSelectedSubcategory(subcategoryParam || null);
+  //     hasChanges = true;
+  //   }
+
+  //   // Update search query if different from URL
+  //   if ((searchParam || "") !== searchQuery) {
+  //     setSearchQuery(searchParam || "");
+  //     hasChanges = true;
+
+  //     // Update search input field
+  //     const searchInput = document.getElementById(
+  //       "product-search"
+  //     ) as HTMLInputElement;
+  //     if (searchInput) {
+  //       searchInput.value = searchParam || "";
+  //     }
+  //   }
+
+  //   // Update price range from URL
+  //   const newMinPrice = minPriceParam ? parseFloat(minPriceParam) : 0;
+  //   const newMaxPrice = maxPriceParam ? parseFloat(maxPriceParam) : 1000;
+  //   if (newMinPrice !== priceRange[0] || newMaxPrice !== priceRange[1]) {
+  //     setPriceRange([newMinPrice, newMaxPrice]);
+  //     hasChanges = true;
+  //   }
+
+  //   // Update sort options from URL
+  //   const newSortBy = sortByParam || "id";
+  //   const newSortOrder = sortOrderParam || "desc";
+  //   if (newSortBy !== sortBy || newSortOrder !== sortOrder) {
+  //     setSortBy(newSortBy);
+  //     setSortOrder(newSortOrder);
+  //     hasChanges = true;
+  //   }
+
+  //   // Update page from URL
+  //   const newPage = pageParam ? parseInt(pageParam) : 1;
+  //   if (newPage !== currentPage) {
+  //     setCurrentPage(newPage);
+  //   }
+
+  //   // Scroll to top when filters change from URL (like footer clicks)
+  //   if (hasChanges) {
+  //     window.scrollTo(0, 0);
+  //   }
+  // }, [
+  //   categoryParam,
+  //   subcategoryParam,
+  //   searchParam,
+  //   minPriceParam,
+  //   maxPriceParam,
+  //   sortByParam,
+  //   sortOrderParam,
+  //   pageParam,
+  //   mainCategories,
+    
+  // ]);
   useEffect(() => {
-    let hasChanges = false;
-
-    // Update category if different from URL
-    if ((categoryParam || null) !== selectedCategory) {
-      setSelectedCategory(categoryParam || null);
-      hasChanges = true;
-
-      // If category changed, fetch its subcategories
-      if (categoryParam) {
-        const category = mainCategories.find(
-          (cat) => cat.name === categoryParam
-        );
-        if (category) {
-          fetchSubcategories(category.id);
-        }
-      } else {
-        setSubcategories([]);
-        setSelectedSubcategory(null);
-      }
+    const effectiveCategory = categoryParam || category || null;
+    
+    if (effectiveCategory !== selectedCategory) {
+      handleCategoryChange(effectiveCategory);
     }
 
-    // Update subcategory if different from URL
+    // Rest of your URL sync logic...
     if ((subcategoryParam || null) !== selectedSubcategory) {
       setSelectedSubcategory(subcategoryParam || null);
-      hasChanges = true;
     }
 
-    // Update search query if different from URL
     if ((searchParam || "") !== searchQuery) {
       setSearchQuery(searchParam || "");
-      hasChanges = true;
-
-      // Update search input field
-      const searchInput = document.getElementById(
-        "product-search"
-      ) as HTMLInputElement;
-      if (searchInput) {
-        searchInput.value = searchParam || "";
-      }
+      const searchInput = document.getElementById("product-search") as HTMLInputElement;
+      if (searchInput) searchInput.value = searchParam || "";
     }
 
-    // Update price range from URL
     const newMinPrice = minPriceParam ? parseFloat(minPriceParam) : 0;
     const newMaxPrice = maxPriceParam ? parseFloat(maxPriceParam) : 1000;
     if (newMinPrice !== priceRange[0] || newMaxPrice !== priceRange[1]) {
       setPriceRange([newMinPrice, newMaxPrice]);
-      hasChanges = true;
     }
 
-    // Update sort options from URL
     const newSortBy = sortByParam || "id";
     const newSortOrder = sortOrderParam || "desc";
     if (newSortBy !== sortBy || newSortOrder !== sortOrder) {
       setSortBy(newSortBy);
       setSortOrder(newSortOrder);
-      hasChanges = true;
     }
 
-    // Update page from URL
     const newPage = pageParam ? parseInt(pageParam) : 1;
     if (newPage !== currentPage) {
       setCurrentPage(newPage);
     }
-
-    // Scroll to top when filters change from URL (like footer clicks)
-    if (hasChanges) {
-      window.scrollTo(0, 0);
-    }
   }, [
     categoryParam,
+    category,
     subcategoryParam,
     searchParam,
     minPriceParam,
@@ -304,9 +350,7 @@ export default function AllProducts() {
   };
 
   // Handle category change to load subcategories
-  useEffect(() => {
-    handleCategoryChange(category);
-  }, [category]);
+
   const handleCategoryChange = (categoryName: string | null) => {
     // Immediate scroll to top
     window.scrollTo(0, 0);
@@ -338,7 +382,9 @@ export default function AllProducts() {
       sortOrder: sortOrder,
     });
   };
-
+  useEffect(() => {
+    handleCategoryChange(category);
+  }, [category]);
   // Handle subcategory change
   const handleSubcategoryChange = (subcategoryName: string | null) => {
     // Immediate scroll to top

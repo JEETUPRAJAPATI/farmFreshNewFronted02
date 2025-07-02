@@ -175,13 +175,10 @@ export default function Checkout() {
         // Process Cash on Delivery order
         // Simulate order processing delay
         await new Promise(resolve => setTimeout(resolve, 1500));
-
         // Clear cart after successful order
         await clearCart();
-
         // Show success state
         setOrderComplete(true);
-
         // Scroll to top
         window.scrollTo({ top: 0, behavior: "smooth" });
       }

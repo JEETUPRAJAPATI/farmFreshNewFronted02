@@ -329,45 +329,6 @@ export default function Footer() {
                   Meet the Farmers
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/#process"
-                  onClick={handleClickUp}
-                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 mr-2 text-[#DDA15E]"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
-                  </svg>
-                  Sustainability
-                </Link>
-              </li>
-              
-              <li>
-                <a
-                  href="#"
-                  onClick={handleClickUp}
-                  className="text-white/90 hover:text-[#DDA15E] transition-all duration-300 flex items-center"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 mr-2 text-[#DDA15E]"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M7 17l9.2-9.2M17 17V7H7"></path>
-                  </svg>
-                  Press
-                </a>
-              </li>
             </ul>
           </div>
 

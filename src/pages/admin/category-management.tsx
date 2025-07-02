@@ -87,7 +87,7 @@ export default function CategoryManagement() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/categories`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ export default function CategoryManagement() {
 
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/categories`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -208,7 +208,7 @@ export default function CategoryManagement() {
   const deleteCategory = async (category: Category) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/categories/${category.id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/categories/${category.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

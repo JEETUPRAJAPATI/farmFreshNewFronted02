@@ -1,13 +1,20 @@
-import { useEffect, useState } from 'react';
-import { useLocation } from 'wouter';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Layout from '@/components/Layout';
-import { useAuth } from '@/context/AuthContext';
-import { useCart } from '@/context/CartContext';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import { queryClient } from '@/lib/queryClient';
+import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Layout from "@/components/Layout";
+import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 
 // This is needed for typescript to recognize the Razorpay global variable
 declare global {
@@ -32,21 +39,22 @@ export default function Payment() {
   // Get the order amount and details from URL parameters or set defaults
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const amount = Number(searchParams.get('amount')) || 100;
-    const currency = searchParams.get('currency') || 'INR';
-    const description = searchParams.get('description') || 'Purchase from Farm to Table';
+    const amount = Number(searchParams.get("amount")) || 100;
+    const currency = searchParams.get("currency") || "INR";
+    const description =
+      searchParams.get("description") || "Purchase from Farm to Table";
 
     setOrderDetails({
       amount,
       currency,
-      description
+      description,
     });
   }, []);
 
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login?redirect=payment');
+      navigate("/login?redirect=payment");
     }
   }, [isAuthenticated, navigate]);
 
@@ -54,8 +62,8 @@ export default function Payment() {
   useEffect(() => {
     const loadRazorpayScript = () => {
       return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
         script.onload = () => resolve(true);
         script.onerror = () => resolve(false);
         document.body.appendChild(script);
@@ -66,9 +74,9 @@ export default function Payment() {
       const res = await loadRazorpayScript();
       if (!res) {
         toast({
-          title: 'Error',
-          description: 'Razorpay SDK failed to load. Please try again later.',
-          variant: 'destructive'
+          title: "Error",
+          description: "Razorpay SDK failed to load. Please try again later.",
+          variant: "destructive",
         });
       }
     };
@@ -83,10 +91,10 @@ export default function Payment() {
       setIsLoading(true);
 
       // Make sure Razorpay is loaded
-      if (typeof window.Razorpay === 'undefined') {
+      if (typeof window.Razorpay === "undefined") {
         // Try loading it again
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
         document.body.appendChild(script);
 
         // Wait for script to load
@@ -97,102 +105,112 @@ export default function Payment() {
         });
 
         // Check again
-        if (typeof window.Razorpay === 'undefined') {
-          throw new Error('Razorpay SDK failed to load. Please refresh the page and try again.');
+        if (typeof window.Razorpay === "undefined") {
+          throw new Error(
+            "Razorpay SDK failed to load. Please refresh the page and try again."
+          );
         }
       }
 
       // Initialize payment with the server
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payments/initialize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          amount: orderDetails.amount,
-          currency: orderDetails.currency
-        })
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/payments/initialize`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            amount: orderDetails.amount,
+            currency: orderDetails.currency,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Payment initialization failed:', errorData);
-        throw new Error(errorData.error || errorData.message || 'Failed to initialize payment');
+        console.error("Payment initialization failed:", errorData);
+        throw new Error(
+          errorData.error || errorData.message || "Failed to initialize payment"
+        );
       }
 
       const data = await response.json();
-      console.log('Payment initialization successful:', data);
+      console.log("Payment initialization successful:", data);
 
       // Configure Razorpay options
       const options = {
         key: data.keyId,
         amount: data.amount,
         currency: data.currency,
-        name: 'Farm to Table',
+        name: "Farm to Table",
         description: orderDetails.description,
         order_id: data.orderId,
         handler: async function (response: any) {
           try {
             // Verify payment with the server
-            const verifyData = await apiRequest(`${import.meta.env.VITE_API_URL}/api/payments/verify`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                'x-session-id': sessionId
-              },
-              body: JSON.stringify({
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpayOrderId: response.razorpay_order_id,
-                razorpaySignature: response.razorpay_signature,
-                amount: data.amount,
-                currency: data.currency,
-                shippingAddress: 'Default address' // You can get this from form data if needed
-              })
-            });
+            const verifyData = await apiRequest(
+              `${import.meta.env.VITE_API_URL}/api/payments/verify`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                  "x-session-id": sessionId,
+                },
+                body: JSON.stringify({
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpaySignature: response.razorpay_signature,
+                  amount: data.amount,
+                  currency: data.currency,
+                  shippingAddress: "Default address",
+                }),
+              }
+            );
 
             // Clear the cart from frontend context
             await clearCart();
 
             // Invalidate cart and order history queries
             queryClient.invalidateQueries({
-              queryKey: [`${import.meta.env.VITE_API_URL}/api/cart`]
+              queryKey: [`${import.meta.env.VITE_API_URL}/api/cart`],
             });
+
             queryClient.invalidateQueries({
-              queryKey: [`${import.meta.env.VITE_API_URL}/api/orders/history`]
+              queryKey: [`${import.meta.env.VITE_API_URL}/api/orders/history`],
             });
 
             toast({
-              title: 'Payment Successful',
-              description: 'Your payment has been processed successfully.'
+              title: "Payment Successful",
+              description: "Your payment has been processed successfully.",
             });
 
             // Redirect to success page
-            navigate('/payment-success');
-
+            navigate("/payment-success");
           } catch (error) {
-            console.error('Payment verification error:', error);
-            let errorMessage = 'Payment verification failed';
+            console.error("Payment verification error:", error);
+            let errorMessage = "Payment verification failed";
             if (error instanceof Error) {
               errorMessage = error.message;
             }
 
             toast({
-              title: 'Payment Error',
+              title: "Payment Error",
               description: errorMessage,
-              variant: 'destructive'
+              variant: "destructive",
             });
           }
         },
         prefill: {
           name: user.name,
           email: user.email,
-          contact: '' // You can add user's phone number if available
+          contact: "", // You can add user's phone number if available
         },
         theme: {
-          color: '#16a34a'
-        }
+          color: "#16a34a",
+        },
       };
 
       try {
@@ -200,25 +218,24 @@ export default function Payment() {
         const razorpay = new window.Razorpay(options);
         razorpay.open();
       } catch (razorpayError) {
-        console.error('Razorpay widget error:', razorpayError);
+        console.error("Razorpay widget error:", razorpayError);
         toast({
-          title: 'Payment Error',
-          description: 'Could not open payment window. Please try again.',
-          variant: 'destructive'
+          title: "Payment Error",
+          description: "Could not open payment window. Please try again.",
+          variant: "destructive",
         });
       }
-
     } catch (error) {
-      console.error('Payment initialization error:', error);
-      let errorMessage = 'Failed to initialize payment';
+      console.error("Payment initialization error:", error);
+      let errorMessage = "Failed to initialize payment";
       if (error instanceof Error) {
         errorMessage = error.message;
       }
 
       toast({
-        title: 'Payment Error',
+        title: "Payment Error",
         description: errorMessage,
-        variant: 'destructive'
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -230,14 +247,11 @@ export default function Payment() {
   }
 
   return (
-
     <div className="container mx-auto py-10 flex justify-center pt-20">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Complete Your Payment</CardTitle>
-          <CardDescription>
-            Secure payment via Razorpay
-          </CardDescription>
+          <CardDescription>Secure payment via Razorpay</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
@@ -259,7 +273,8 @@ export default function Payment() {
 
             <div className="text-sm text-gray-500">
               <p>
-                Your payment is secured by Razorpay. We do not store your payment details.
+                Your payment is secured by Razorpay. We do not store your
+                payment details.
               </p>
             </div>
           </div>
@@ -270,7 +285,7 @@ export default function Payment() {
             onClick={handlePayment}
             disabled={isLoading}
           >
-            {isLoading ? 'Processing...' : 'Pay Now'}
+            {isLoading ? "Processing..." : "Pay Now"}
           </Button>
         </CardFooter>
       </Card>

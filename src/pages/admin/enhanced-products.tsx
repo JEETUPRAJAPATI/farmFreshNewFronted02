@@ -798,7 +798,6 @@ export default function EnhancedAdminProducts() {
                                     }
                                     alt={product.name}
                                     className="w-20 h-12 rounded object-cover border"
-                                 
                                   />
                                   {product.imageUrls &&
                                     product.imageUrls.length > 0 && (
@@ -1111,6 +1110,48 @@ export default function EnhancedAdminProducts() {
                                 Choose a specific subcategory to help customers
                                 find your product more easily
                               </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="specifications"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Specifications</FormLabel>
+                              <Select
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  handleCategoryChange(value);
+                                }}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a specification" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {[
+                                    { value: "powder", label: "Powder" },
+                                    { value: "raw", label: "Raw" },
+                                    { value: "oil", label: "Oil" },
+                                    { value: "liquid", label: "Liquid" },
+                                    { value: "capsule", label: "Capsule" },
+                                    { value: "tablet", label: "Tablet" },
+                                    { value: "granules", label: "Granules" },
+                                    { value: "paste", label: "Paste" },
+                                  ].map((spec) => (
+                                    <SelectItem
+                                      key={spec.value}
+                                      value={spec.value}
+                                    >
+                                      {spec.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
